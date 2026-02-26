@@ -71,14 +71,7 @@ export function renderStatusFilterButton(
 			// 复选框
 			const checkbox = item.createEl('span', classes.statusCheckbox);
 			if (isSelected) {
-				checkbox.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-					<rect x="1" y="1" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-					<path d="M4 8l3 3 6-6" stroke="currentColor" stroke-width="1.5" fill="none"/>
-				</svg>`;
-			} else {
-				checkbox.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-					<rect x="1" y="1" width="14" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-				</svg>`;
+				setIcon(checkbox, 'check');
 			}
 
 			// 状态名称 - 应用背景色和文字颜色

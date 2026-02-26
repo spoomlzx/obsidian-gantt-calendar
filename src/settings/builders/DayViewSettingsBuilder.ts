@@ -92,7 +92,7 @@ export class DayViewSettingsBuilder extends BaseBuilder {
 					const folders = this.plugin.app.vault.getAllLoadedFiles().filter((f): f is TFolder => f instanceof TFolder);
 					const updateSuggestions = (query: string) => {
 						if (!datalist) return;
-						datalist.innerHTML = '';
+						datalist.empty();
 						const lower = query.toLowerCase();
 						folders
 							.filter((f: TFolder) => f.path.toLowerCase().includes(lower))

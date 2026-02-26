@@ -5,7 +5,7 @@
  */
 
 import type { App } from 'obsidian';
-import { GC_VIEW_ID } from '../GCMainView';
+import { GC_VIEW_ID, GCMainView } from '../GCMainView';
 
 /**
  * 视图管理器
@@ -40,8 +40,7 @@ export class ViewManager {
 	refreshAllViews(): void {
 		const leaves = this.app.workspace.getLeavesOfType(GC_VIEW_ID);
 		leaves.forEach(leaf => {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const view = leaf.view as any;
+			const view = leaf.view as unknown as GCMainView;
 			if (view && view.refreshSettings) {
 				view.refreshSettings();
 			}

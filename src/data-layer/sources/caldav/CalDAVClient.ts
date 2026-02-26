@@ -5,6 +5,7 @@
  * 支持 WebDAV 扩展方法（REPORT, PROPFIND, MKCALENDAR 等）。
  */
 
+import { requestUrl } from 'obsidian';
 import { Logger } from '../../../utils/logger';
 
 /**
@@ -84,7 +85,8 @@ export class CalDAVClient {
         body?: string
     ): Promise<CalDAVResponse<string>> {
         try {
-            const response = await fetch(url, {
+            const response = await requestUrl({
+                url,
                 method,
                 headers: {
                     ...this.getAuthHeaders(),
@@ -93,25 +95,18 @@ export class CalDAVClient {
                 body,
             });
 
-            const responseText = await response.text();
-
-            if (response.ok) {
-                return {
-                    success: true,
-                    data: responseText,
-                    status: response.status,
-                };
-            }
-
             return {
-                success: false,
-                error: `HTTP ${response.status}: ${response.statusText}`,
+                success: true,
+                data: response.text,
                 status: response.status,
             };
         } catch (error) {
+            const status = (error as any)?.status;
+            const errorMsg = error instanceof Error ? error.message : String(error);
             return {
                 success: false,
-                error: error instanceof Error ? error.message : String(error),
+                error: status ? `HTTP ${status}: ${errorMsg}` : errorMsg,
+                status,
             };
         }
     }

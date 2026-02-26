@@ -45,7 +45,7 @@ export class Logger {
 	 * 用于显示文件数量、任务数量、性能统计等
 	 */
 	static stats(tag: string, ...args: any[]): void {
-		console.log(`${this.LOG_PREFIX}[${tag}]`, ...args);
+		console.debug(`${this.LOG_PREFIX}[${tag}]`, ...args);
 	}
 
 	/**
@@ -53,7 +53,7 @@ export class Logger {
 	 */
 	static debug(tag: string, ...args: any[]): void {
 		if (this.isDebugMode()) {
-			console.log(`${this.LOG_PREFIX}[${tag}]`, ...args);
+			console.debug(`${this.LOG_PREFIX}[${tag}]`, ...args);
 		}
 	}
 
@@ -63,7 +63,7 @@ export class Logger {
 	 */
 	static info(tag: string, ...args: any[]): void {
 		if (this.isDebugMode()) {
-			console.log(`${this.LOG_PREFIX}[${tag}]`, ...args);
+			console.debug(`${this.LOG_PREFIX}[${tag}]`, ...args);
 		}
 	}
 }

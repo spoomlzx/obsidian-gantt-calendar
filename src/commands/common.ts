@@ -1,4 +1,4 @@
-import { GC_VIEW_ID } from '../GCMainView';
+import { GC_VIEW_ID, GCMainView } from '../GCMainView';
 import type GanttCalendarPlugin from '../../main';
 
 /**
@@ -13,8 +13,8 @@ export function registerCommonCommands(plugin: GanttCalendarPlugin): void {
 		callback: async () => {
 			await plugin.activateView();
 			const leaf = plugin.app.workspace.getLeavesOfType(GC_VIEW_ID)[0];
-			const view = leaf?.view as any;
-			if (view?.switchView) {
+			const view = leaf?.view as unknown as GCMainView | undefined;
+			if (view) {
 				view.switchView('month');
 			}
 		}
@@ -27,8 +27,8 @@ export function registerCommonCommands(plugin: GanttCalendarPlugin): void {
 		callback: async () => {
 			await plugin.activateView();
 			const leaf = plugin.app.workspace.getLeavesOfType(GC_VIEW_ID)[0];
-			const view = leaf?.view as any;
-			if (view?.switchView) {
+			const view = leaf?.view as unknown as GCMainView | undefined;
+			if (view) {
 				view.switchView('task');
 			}
 		}

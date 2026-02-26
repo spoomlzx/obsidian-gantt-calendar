@@ -428,6 +428,9 @@ export abstract class APIDataSource implements IDataSource {
         this.pollTimer = window.setTimeout(() => {
             this.fetchTasks().then(() => {
                 this.startPolling(intervalMs);
+            }).catch(error => {
+                Logger.error('APIDataSource', 'Polling error:', error);
+                this.startPolling(intervalMs);
             });
         }, intervalMs);
     }

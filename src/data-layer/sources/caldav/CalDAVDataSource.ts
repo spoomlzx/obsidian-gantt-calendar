@@ -370,6 +370,9 @@ export class CalDAVDataSource implements IDataSource {
         this.pollTimer = window.setTimeout(() => {
             this.fetchTasks().then(() => {
                 this.startPolling(intervalMs);
+            }).catch(error => {
+                Logger.error('CalDAVDataSource', 'Polling error:', error);
+                this.startPolling(intervalMs);
             });
         }, intervalMs);
     }

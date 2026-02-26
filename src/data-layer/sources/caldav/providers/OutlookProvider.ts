@@ -7,6 +7,7 @@
  * 文档: https://docs.microsoft.com/graph/api/resources/calendar
  */
 
+import { requestUrl } from 'obsidian';
 import { CalDAVDataSource, CalDAVDataSourceConfig } from '../CalDAVDataSource';
 import { Logger } from '../../../../utils/logger';
 
@@ -77,7 +78,8 @@ export class OutlookProvider extends CalDAVDataSource {
         }
 
         try {
-            const response = await fetch(`https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`, {
+            const response = await requestUrl({
+                url: `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`,
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
@@ -85,11 +87,12 @@ export class OutlookProvider extends CalDAVDataSource {
                     client_secret: this.oauthConfig.clientSecret,
                     refresh_token: this.oauthConfig.refreshToken,
                     grant_type: 'refresh_token',
-                }),
+                }).toString(),
+                throw: false,
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (response.status >= 200 && response.status < 300) {
+                const data = response.json;
                 this.oauthConfig.accessToken = data.access_token;
 
                 // 更新 CalDAV 客户端配置
@@ -101,7 +104,7 @@ export class OutlookProvider extends CalDAVDataSource {
                 return true;
             }
 
-            const error = await response.json();
+            const error = response.json;
             Logger.error('OutlookProvider', 'Failed to refresh token', error);
             return false;
         } catch (error) {
@@ -131,7 +134,8 @@ export class OutlookProvider extends CalDAVDataSource {
      */
     async exchangeCodeForToken(code: string): Promise<boolean> {
         try {
-            const response = await fetch(`https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`, {
+            const response = await requestUrl({
+                url: `https://login.microsoftonline.com/${this.tenantId}/oauth2/v2.0/token`,
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
@@ -140,11 +144,12 @@ export class OutlookProvider extends CalDAVDataSource {
                     code,
                     redirect_uri: this.oauthConfig.redirectUri,
                     grant_type: 'authorization_code',
-                }),
+                }).toString(),
+                throw: false,
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (response.status >= 200 && response.status < 300) {
+                const data = response.json;
                 this.oauthConfig.accessToken = data.access_token;
                 this.oauthConfig.refreshToken = data.refresh_token;
 
@@ -152,7 +157,7 @@ export class OutlookProvider extends CalDAVDataSource {
                 return true;
             }
 
-            const error = await response.json();
+            const error = response.json;
             Logger.error('OutlookProvider', 'Authorization code exchange failed', error);
             return false;
         } catch (error) {
@@ -164,17 +169,19 @@ export class OutlookProvider extends CalDAVDataSource {
     /**
      * 获取可访问的日历列表
      */
-    async getCalendarList(): Promise<any[]> {
+    async getCalendarList(): Promise<unknown[]> {
         try {
-            const response = await fetch('https://graph.microsoft.com/v1.0/me/calendars', {
+            const response = await requestUrl({
+                url: 'https://graph.microsoft.com/v1.0/me/calendars',
                 headers: {
                     'Authorization': `Bearer ${this.oauthConfig.accessToken}`,
                     'Content-Type': 'application/json',
                 },
+                throw: false,
             });
 
-            if (response.ok) {
-                const data = await response.json();
+            if (response.status >= 200 && response.status < 300) {
+                const data = response.json;
                 return data.value || [];
             }
 

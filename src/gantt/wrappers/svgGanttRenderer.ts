@@ -1735,7 +1735,9 @@ export class SvgGanttRenderer {
 		// 3. 简化处理：如果任务数量变化，重新渲染整个列表
 		if (added.length > 0 || removed.length > 0) {
 			// 重新渲染任务列表
-			svg.innerHTML = '';
+			while (svg.firstChild) {
+				svg.removeChild(svg.firstChild);
+			}
 			this.renderTaskList(svg);
 		}
 	}

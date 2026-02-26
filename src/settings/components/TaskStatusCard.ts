@@ -84,7 +84,7 @@ export class TaskStatusCard {
 		// 删除按钮（仅自定义状态）
 		if (isCustom && onDelete) {
 			const deleteButton = header.createEl('button');
-			deleteButton.innerHTML = '&times;';
+			deleteButton.setText('×');
 			deleteButton.style.marginLeft = 'auto';
 			deleteButton.style.width = '24px';
 			deleteButton.style.height = '24px';

@@ -423,6 +423,9 @@ export class SyncManager {
             this.syncTimer = window.setTimeout(() => {
                 this.sync().then(() => {
                     this.startAutoSync(); // 递归调用实现周期同步
+                }).catch(error => {
+                    Logger.error('SyncManager', 'Auto-sync error:', error);
+                    this.startAutoSync(); // 即使出错也继续同步
                 });
             }, intervalMs);
 

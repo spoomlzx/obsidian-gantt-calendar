@@ -178,12 +178,16 @@ export class TooltipManager {
 
 		// 更新描述
 		const displayText = task.description || '';
-		this.cachedElements.description.innerHTML = `<strong>${this.escapeHtml(displayText)}</strong>`;
+		this.cachedElements.description.empty();
+		const strongEl = this.cachedElements.description.createEl('strong');
+		strongEl.setText(displayText);
 
 		// 更新优先级
 		if (task.priority && this.cachedElements.priority) {
 			const priorityIcon = this.getPriorityIcon(task.priority);
-			this.cachedElements.priority.innerHTML = `<span class="priority-${task.priority}">${priorityIcon} 优先级: ${task.priority}</span>`;
+			this.cachedElements.priority.empty();
+			const spanEl = this.cachedElements.priority.createEl('span', { cls: `priority-${task.priority}` });
+			spanEl.setText(`${priorityIcon} 优先级: ${task.priority}`);
 			this.cachedElements.priority.style.display = '';
 		} else if (this.cachedElements.priority) {
 			this.cachedElements.priority.style.display = 'none';
@@ -195,36 +199,36 @@ export class TooltipManager {
 				task.dueDate || task.cancelledDate || task.completionDate;
 
 			if (hasTimeProperties || task.repeat) {
-				const timeHtml: string[] = [];
+				this.cachedElements.times.empty();
 
 				if (task.createdDate) {
-					timeHtml.push(`<div class="gc-task-tooltip__time-item">➕ 创建: ${formatDate(task.createdDate, 'yyyy-MM-dd')}</div>`);
+					this.createTimeItem(this.cachedElements.times, '➕ 创建:', formatDate(task.createdDate, 'yyyy-MM-dd'));
 				}
 				if (task.startDate) {
-					timeHtml.push(`<div class="gc-task-tooltip__time-item">🛫 开始: ${formatDate(task.startDate, 'yyyy-MM-dd')}</div>`);
+					this.createTimeItem(this.cachedElements.times, '🛫 开始:', formatDate(task.startDate, 'yyyy-MM-dd'));
 				}
 				if (task.scheduledDate) {
-					timeHtml.push(`<div class="gc-task-tooltip__time-item">⏳ 计划: ${formatDate(task.scheduledDate, 'yyyy-MM-dd')}</div>`);
+					this.createTimeItem(this.cachedElements.times, '⏳ 计划:', formatDate(task.scheduledDate, 'yyyy-MM-dd'));
 				}
 				if (task.dueDate) {
-					const overdueClass = task.dueDate < new Date() && !task.completed
-						? ' gc-task-tooltip__time-item--overdue'
-						: '';
-					timeHtml.push(`<div class="gc-task-tooltip__time-item${overdueClass}">📅 截止: ${formatDate(task.dueDate, 'yyyy-MM-dd')}</div>`);
+					const isOverdue = task.dueDate < new Date() && !task.completed;
+					const cls = isOverdue ? 'gc-task-tooltip__time-item gc-task-tooltip__time-item--overdue' : 'gc-task-tooltip__time-item';
+					const div = this.cachedElements.times.createDiv(cls);
+					div.setText(`📅 截止: ${formatDate(task.dueDate, 'yyyy-MM-dd')}`);
 				}
 				if (task.cancelledDate) {
-					timeHtml.push(`<div class="gc-task-tooltip__time-item">❌ 取消: ${formatDate(task.cancelledDate, 'yyyy-MM-dd')}</div>`);
+					this.createTimeItem(this.cachedElements.times, '❌ 取消:', formatDate(task.cancelledDate, 'yyyy-MM-dd'));
 				}
 				if (task.completionDate) {
-					timeHtml.push(`<div class="gc-task-tooltip__time-item">✅ 完成: ${formatDate(task.completionDate, 'yyyy-MM-dd')}</div>`);
+					this.createTimeItem(this.cachedElements.times, '✅ 完成:', formatDate(task.completionDate, 'yyyy-MM-dd'));
 				}
 
 				// 周期任务显示
 				if (task.repeat) {
-					timeHtml.push(`<div class="gc-task-tooltip__time-item gc-task-tooltip__repeat">🔁 重复: ${this.escapeHtml(task.repeat)}</div>`);
+					const div = this.cachedElements.times.createDiv('gc-task-tooltip__time-item gc-task-tooltip__repeat');
+					div.setText(`🔁 重复: ${task.repeat}`);
 				}
 
-				this.cachedElements.times.innerHTML = timeHtml.join('');
 				this.cachedElements.times.style.display = '';
 			} else {
 				this.cachedElements.times.style.display = 'none';
@@ -234,20 +238,22 @@ export class TooltipManager {
 		// 更新标签
 		if (this.cachedElements.tags) {
 			if (task.tags && task.tags.length > 0) {
-				// 使用 TagPill 组件创建标签元素
-				const tempDiv = document.createElement('div');
-				tempDiv.style.display = 'flex';
-				tempDiv.style.flexDirection = 'row';
-				tempDiv.style.alignItems = 'center';
-				tempDiv.style.gap = '6px';
-				tempDiv.style.flexWrap = 'wrap';
+				this.cachedElements.tags.empty();
+				const labelEl = this.cachedElements.tags.createEl('span', { cls: 'gc-task-tooltip__label' });
+				labelEl.setText('标签：');
 
-				TagPill.createMultiple(task.tags, tempDiv, {
+				// 使用 TagPill 组件创建标签元素
+				const tagsContainer = this.cachedElements.tags.createDiv();
+				tagsContainer.style.display = 'flex';
+				tagsContainer.style.flexDirection = 'row';
+				tagsContainer.style.alignItems = 'center';
+				tagsContainer.style.gap = '6px';
+				tagsContainer.style.flexWrap = 'wrap';
+
+				TagPill.createMultiple(task.tags, tagsContainer, {
 					showHash: true,
 				});
 
-				const tagsHtml = tempDiv.innerHTML;
-				this.cachedElements.tags.innerHTML = `<span class="gc-task-tooltip__label">标签：</span>${tagsHtml}`;
 				this.cachedElements.tags.style.display = '';
 			} else {
 				this.cachedElements.tags.style.display = 'none';
@@ -256,8 +262,18 @@ export class TooltipManager {
 
 		// 更新文件位置
 		if (this.cachedElements.file) {
-			this.cachedElements.file.innerHTML = `<span class="gc-task-tooltip__file-location">📄 ${task.fileName}:${task.lineNumber}</span>`;
+			this.cachedElements.file.empty();
+			const locationEl = this.cachedElements.file.createEl('span', { cls: 'gc-task-tooltip__file-location' });
+			locationEl.setText(`📄 ${task.fileName}:${task.lineNumber}`);
 		}
+	}
+
+	/**
+	 * 创建时间项
+	 */
+	private createTimeItem(container: HTMLElement, label: string, value: string): void {
+		const div = container.createDiv('gc-task-tooltip__time-item');
+		div.setText(`${label} ${value}`);
 	}
 
 	/**

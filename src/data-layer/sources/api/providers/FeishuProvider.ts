@@ -5,6 +5,7 @@
  * API 文档: https://open.feishu.cn/document/server-docs/docs/task-v1/task-list
  */
 
+import { requestUrl } from 'obsidian';
 import { APIDataSource, APIResponse, APITaskDTO } from '../APIDataSource';
 import type { DataSourceConfig } from '../../../types';
 import { Logger } from '../../../../utils/logger';
@@ -329,7 +330,7 @@ export class FeishuProvider extends APIDataSource {
     private async callAPI<T>(
         path: string,
         method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
-        body?: any
+        body?: unknown
     ): Promise<T> {
         if (!this.oauthConfig.accessToken) {
             await this.ensureAccessToken();
@@ -337,20 +338,17 @@ export class FeishuProvider extends APIDataSource {
 
         const url = `https://open.feishu.cn${path}`;
 
-        const options: RequestInit = {
+        const response = await requestUrl({
+            url,
             method,
             headers: {
                 'Authorization': `Bearer ${this.oauthConfig.accessToken}`,
                 'Content-Type': 'application/json',
             },
-        };
+            body: body ? JSON.stringify(body) : undefined,
+        });
 
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
-
-        const response = await fetch(url, options);
-        return response.json();
+        return response.json;
     }
 
     /**

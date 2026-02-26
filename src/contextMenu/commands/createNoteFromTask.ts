@@ -1,4 +1,4 @@
-import { App, Notice, normalizePath } from 'obsidian';
+import { App, Notice, normalizePath, TFile } from 'obsidian';
 import type { GCTask } from '../../types';
 import { formatDate } from '../../dateUtils/dateUtilsIndex';
 import { updateTaskProperties } from '../../tasks/taskUpdater';
@@ -210,10 +210,10 @@ export async function createNoteFromTaskCore(
 		// 5) 构建文件路径并检查指定目录下是否已存在
 		const filePath = normalizePath(`${defaultPath}/${fileName}.md`);
 		const existingFile = app.vault.getAbstractFileByPath(filePath);
-		if (existingFile) {
+		if (existingFile instanceof TFile) {
 			new Notice(`指定目录下已存在文件: ${fileName}.md`);
 			const leaf = app.workspace.getLeaf(false);
-			await leaf.openFile(existingFile as any);
+			await leaf.openFile(existingFile);
 			// 仍将任务内容改为双链，方便后续跳转
 			await updateTaskProperties(app, task, { content: options.wikiLinkContent }, enabledFormats);
 			return;

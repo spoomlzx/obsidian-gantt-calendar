@@ -216,16 +216,42 @@ export class SyncSettingsBuilder extends BaseBuilder {
 						const typeLabel = isPrimary ? '主日历' : (cal.type || '共享');
 						const typeColor = isPrimary ? 'var(--text-accent)' : 'var(--text-muted)';
 
-						itemEl.innerHTML = `
-							<div style="font-weight: 500">${cal.summary}${isPrimary ? ' <span style="color: var(--text-accent)">★</span>' : ''}</div>
-							<div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">
-								<span style="color: ${typeColor}">[${typeLabel}]</span>
-							</div>
-							<div style="font-size: 11px; font-family: monospace; color: var(--text-muted); margin-top: 4px; word-break: break-all;">
-								${cal.calendar_id.substring(0, 30)}...
-							</div>
-							${cal.description ? `<div style="font-size: 12px; color: var(--text-muted); margin-top: 6px;">${cal.description}</div>` : ''}
-						`;
+						// 标题行
+						const titleDiv = itemEl.createDiv();
+						titleDiv.style.fontWeight = '500';
+						titleDiv.setText(cal.summary);
+						if (isPrimary) {
+							const starSpan = titleDiv.createSpan();
+							starSpan.style.color = 'var(--text-accent)';
+							starSpan.setText(' ★');
+						}
+
+						// 类型行
+						const typeDiv = itemEl.createDiv();
+						typeDiv.style.fontSize = '12px';
+						typeDiv.style.color = 'var(--text-muted)';
+						typeDiv.style.marginTop = '6px';
+						const typeSpan = typeDiv.createSpan();
+						typeSpan.style.color = typeColor;
+						typeSpan.setText(`[${typeLabel}]`);
+
+						// ID 行
+						const idDiv = itemEl.createDiv();
+						idDiv.style.fontSize = '11px';
+						idDiv.style.fontFamily = 'monospace';
+						idDiv.style.color = 'var(--text-muted)';
+						idDiv.style.marginTop = '4px';
+						idDiv.style.wordBreak = 'break-all';
+						idDiv.setText(`${cal.calendar_id.substring(0, 30)}...`);
+
+						// 描述行（可选）
+						if (cal.description) {
+							const descDiv = itemEl.createDiv();
+							descDiv.style.fontSize = '12px';
+							descDiv.style.color = 'var(--text-muted)';
+							descDiv.style.marginTop = '6px';
+							descDiv.setText(cal.description);
+						}
 
 						// 添加选择按钮
 						const selectBtn = document.createElement('button');

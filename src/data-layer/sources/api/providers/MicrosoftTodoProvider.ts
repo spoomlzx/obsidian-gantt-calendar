@@ -7,6 +7,7 @@
  * 注意：Microsoft To Do 需要 OAuth 2.0 认证
  */
 
+import { requestUrl } from 'obsidian';
 import { APIDataSource, APIResponse, APITaskDTO } from '../APIDataSource';
 import type { DataSourceConfig } from '../../../types';
 import { Logger } from '../../../../utils/logger';
@@ -225,35 +226,32 @@ export class MicrosoftTodoProvider extends APIDataSource {
     private async callAPI<T>(
         path: string,
         method: 'GET' | 'POST' | 'PATCH' | 'DELETE' = 'GET',
-        body?: any
+        body?: unknown
     ): Promise<T> {
         // 确保 path 以 /me 或 /users 开头
         const fullPath = path.startsWith('/') ? path : `/${path}`;
         const url = `https://graph.microsoft.com/v1.0${fullPath}`;
 
-        const options: RequestInit = {
-            method,
-            headers: {
-                'Authorization': `Bearer ${this.accessToken}`,
-                'Content-Type': 'application/json',
-            },
-        };
+        try {
+            const response = await requestUrl({
+                url,
+                method,
+                headers: {
+                    'Authorization': `Bearer ${this.accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: body ? JSON.stringify(body) : undefined,
+            });
 
-        if (body) {
-            options.body = JSON.stringify(body);
-        }
-
-        const response = await fetch(url, options);
-
-        if (!response.ok) {
-            if (response.status === 401) {
+            return response.json;
+        } catch (error) {
+            const status = (error as any)?.status;
+            if (status === 401) {
                 // Token 过期，需要刷新
                 throw new Error('Access token expired, please re-authenticate');
             }
-            throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+            throw new Error(`API request failed: ${status || 'unknown'} ${error instanceof Error ? error.message : String(error)}`);
         }
-
-        return response.json();
     }
 
     /**

@@ -1,9 +1,10 @@
 /**
  * 飞书 HTTP 客户端
  *
- * 封装 HTTP 请求逻辑，支持原生 fetch 和 Obsidian requestUrl
+ * 封装 HTTP 请求逻辑，使用 Obsidian requestUrl
  */
 
+import { requestUrl } from 'obsidian';
 import type { FetchFunction, HttpResponse } from './FeishuTypes';
 import { Logger } from '../../../../../utils/logger';
 
@@ -131,7 +132,7 @@ export class FeishuHttpClient {
     }
 
     /**
-     * 默认的 fetch 实现（原生 fetch）
+     * 默认的 fetch 实现（使用 Obsidian requestUrl）
      * @param url 请求 URL
      * @param options 请求选项
      * @returns HTTP 响应
@@ -144,25 +145,21 @@ export class FeishuHttpClient {
             headers?: Record<string, string>;
         } = {}
     ): Promise<HttpResponse> {
-        const response = await fetch(url, {
+        const response = await requestUrl({
+            url,
             method: options.method || 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 ...options.headers,
             },
             body: options.body,
-        });
-
-        // 转换 Headers 为普通对象
-        const headersObj: Record<string, string> = {};
-        response.headers.forEach((value, key) => {
-            headersObj[key] = value;
+            throw: false,
         });
 
         return {
             status: response.status,
-            headers: headersObj,
-            text: await response.text(),
+            headers: response.headers,
+            text: response.text,
         };
     }
 }
