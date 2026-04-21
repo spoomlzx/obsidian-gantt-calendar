@@ -144,6 +144,16 @@ export class TaskCardRenderer {
 	}
 
 	/**
+	 * 渲染任务 ticktick（%%content%%）
+	 */
+	renderTicktick(card: HTMLElement, task: GCTask): void {
+		if (!task.ticktick) return;
+
+		const ticktickEl = card.createDiv(TaskCardClasses.elements.ticktick);
+		ticktickEl.setText(task.ticktick);
+	}
+
+	/**
 	 * 渲染任务描述为富文本（包含可点击的链接）
 	 */
 	private renderTaskDescriptionWithLinks(container: HTMLElement, text: string): void {

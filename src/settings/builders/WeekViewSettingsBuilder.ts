@@ -57,6 +57,18 @@ export class WeekViewSettingsBuilder extends BaseBuilder {
 							await this.saveAndRefresh();
 						}))
 			);
+
+			// 任务卡片显示 ticktick
+			addSetting(setting =>
+				setting.setName('显示 Ticktick')
+					.setDesc('在周视图任务卡片中显示 %%content%% ticktick 文本')
+					.addToggle(toggle => toggle
+						.setValue(this.plugin.settings.weekViewShowTicktick)
+						.onChange(async (value) => {
+							this.plugin.settings.weekViewShowTicktick = value;
+							await this.saveAndRefresh();
+						}))
+			);
 		});
 	}
 }

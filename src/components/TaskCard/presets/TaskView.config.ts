@@ -15,6 +15,7 @@ export const TaskViewConfig: TaskCardConfig = {
 	showPriority: true,
 	showFileLocation: true,
 	showWarning: true,
+	showTicktick: true,
 	showGlobalFilter: true,
 
 	// 时间属性配置

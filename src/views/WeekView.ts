@@ -249,6 +249,7 @@ export class WeekViewRenderer extends BaseViewRenderer {
 			showCheckbox: this.plugin.settings.weekViewShowCheckbox,
 			showTags: this.plugin.settings.weekViewShowTags,
 			showPriority: this.plugin.settings.weekViewShowPriority,
+				showTicktick: this.plugin.settings.weekViewShowTicktick,
 		};
 
 		new TaskCardComponent({

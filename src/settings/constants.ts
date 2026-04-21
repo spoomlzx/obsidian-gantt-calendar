@@ -64,6 +64,7 @@ export const DEFAULT_SETTINGS: GanttCalendarSettings = {
 	weekViewShowCheckbox: true,
 	weekViewShowTags: true,
 	weekViewShowPriority: true,
+	weekViewShowTicktick: true,
 
 	// MonthView
 	monthViewSelectedStatuses: ['todo'],
@@ -73,6 +74,7 @@ export const DEFAULT_SETTINGS: GanttCalendarSettings = {
 	monthViewShowCheckbox: true,
 	monthViewShowTags: true,
 	monthViewShowPriority: false,  // 月视图空间有限，默认不显示优先级
+	monthViewShowTicktick: true,
 
 	// YearView
 	yearViewSelectedTags: [],

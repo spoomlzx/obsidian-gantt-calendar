@@ -15,6 +15,7 @@ export const WeekViewConfig: TaskCardConfig = {
 	showPriority: true,
 	showFileLocation: false,
 	showWarning: true,
+	showTicktick: true,
 	showGlobalFilter: false,   // 周视图不显示全局过滤词
 
 	// 时间属性配置

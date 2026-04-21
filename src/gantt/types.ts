@@ -68,6 +68,8 @@ export interface GanttChartTask {
 	completionDate?: Date;
 	/** 周期规则，如 "every day" */
 	repeat?: string;
+	/** ticktick 文本（%%content%%） */
+	ticktick?: string;
 }
 
 /**

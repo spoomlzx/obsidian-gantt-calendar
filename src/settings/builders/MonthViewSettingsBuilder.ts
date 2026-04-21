@@ -71,6 +71,18 @@ export class MonthViewSettingsBuilder extends BaseBuilder {
 							await this.saveAndRefresh();
 						}))
 			);
+
+			// 任务卡片显示 ticktick
+			addSetting(setting =>
+				setting.setName('显示 Ticktick')
+					.setDesc('在月视图任务卡片中显示 %%content%% ticktick 文本')
+					.addToggle(toggle => toggle
+						.setValue(this.plugin.settings.monthViewShowTicktick)
+						.onChange(async (value) => {
+							this.plugin.settings.monthViewShowTicktick = value;
+							await this.saveAndRefresh();
+						}))
+			);
 		});
 	}
 }

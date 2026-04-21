@@ -498,6 +498,26 @@ export class RegularExpressions {
          * "任务 #work #urgent" -> 可以提取出 ["work", "urgent"]
          */
         matchTags: /#([a-zA-Z\u4e00-\u9fa5][a-zA-Z0-9_\u4e00-\u9fa5]*)/g,
+
+        /**
+         * 提取 %%content%% ticktick 内容（非贪婪，支持多个块）
+         * 捕获组1为 ticktick 内容（不含 %% 分隔符）
+         *
+         * @example
+         * "任务 %%重要备注%%" -> 匹配，捕获 "重要备注"
+         * "任务 %%A%% 中 %%B%%" -> 可多次匹配，捕获 "A" 和 "B"
+         */
+        matchTicktick: /%%(.+?)%%/g,
+
+        /**
+         * 移除 %%content%% ticktick 块及其周围的空格
+         * 与 removePriorityEmoji、removeTasksDate 等保持一致的移除模式
+         *
+         * @example
+         * "任务 %%备注%% 内容" -> "任务  内容"
+         * "%%备注%%" -> ""
+         */
+        removeTicktick: /\s*%%.+?%%\s*/g,
     } as const;
 
     // ==================== 复选框状态正则 ====================

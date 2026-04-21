@@ -311,6 +311,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 			showCheckbox: this.plugin.settings.monthViewShowCheckbox,
 			showTags: this.plugin.settings.monthViewShowTags,
 			showPriority: this.plugin.settings.monthViewShowPriority,
+				showTicktick: this.plugin.settings.monthViewShowTicktick,
 		};
 
 		new TaskCardComponent({

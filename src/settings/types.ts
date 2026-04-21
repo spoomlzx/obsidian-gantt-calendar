@@ -70,6 +70,7 @@ export interface GanttCalendarSettings {
 	weekViewShowCheckbox: boolean;
 	weekViewShowTags: boolean;
 	weekViewShowPriority: boolean;
+		weekViewShowTicktick: boolean;
 
 	// MonthView 状态
 	monthViewSelectedStatuses: string[];
@@ -79,6 +80,7 @@ export interface GanttCalendarSettings {
 	monthViewShowCheckbox: boolean;
 	monthViewShowTags: boolean;
 	monthViewShowPriority: boolean;
+		monthViewShowTicktick: boolean;
 
 	// YearView 状态
 	yearViewSelectedTags: string[];

@@ -42,6 +42,7 @@ export class TooltipManager {
 	private cachedElements: {
 		description?: HTMLElement;
 		priority?: HTMLElement;
+		ticktick?: HTMLElement;
 		times?: HTMLElement;
 		tags?: HTMLElement;
 		file?: HTMLElement;
@@ -76,12 +77,14 @@ export class TooltipManager {
 			// 预创建所有子元素（只创建一次）
 			this.cachedElements.description = this.tooltip.createDiv('gc-task-tooltip__description');
 			this.cachedElements.priority = this.tooltip.createDiv('gc-task-tooltip__priority');
+			this.cachedElements.ticktick = this.tooltip.createDiv('gc-task-tooltip__ticktick');
 			this.cachedElements.times = this.tooltip.createDiv('gc-task-tooltip__times');
 			this.cachedElements.tags = this.tooltip.createDiv('gc-task-tooltip__tags');
 			this.cachedElements.file = this.tooltip.createDiv('gc-task-tooltip__file');
 
 			// 初始隐藏部分元素
 			this.cachedElements.priority.style.display = 'none';
+			this.cachedElements.ticktick.style.display = 'none';
 			this.cachedElements.times.style.display = 'none';
 			this.cachedElements.tags.style.display = 'none';
 
@@ -191,6 +194,15 @@ export class TooltipManager {
 			this.cachedElements.priority.style.display = '';
 		} else if (this.cachedElements.priority) {
 			this.cachedElements.priority.style.display = 'none';
+		}
+
+		// 更新 ticktick
+		if (task.ticktick && this.cachedElements.ticktick) {
+			this.cachedElements.ticktick.empty();
+			this.cachedElements.ticktick.setText(task.ticktick);
+			this.cachedElements.ticktick.style.display = '';
+		} else if (this.cachedElements.ticktick) {
+			this.cachedElements.ticktick.style.display = 'none';
 		}
 
 		// 更新时间属性
@@ -340,6 +352,7 @@ export class TooltipManager {
 		let height = 60; // 基础高度（描述 + 文件）
 
 		if (this.currentTask.priority) height += 30;
+		if (this.currentTask.ticktick) height += 25;
 		if (this.currentTask.createdDate) height += 20;
 		if (this.currentTask.startDate) height += 20;
 		if (this.currentTask.scheduledDate) height += 20;

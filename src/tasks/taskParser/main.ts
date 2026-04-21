@@ -17,7 +17,7 @@ import { parseTaskLine } from './step1';
 import { passesGlobalFilter, removeGlobalFilter } from './step2';
 import { detectFormat } from './step3';
 import { parseCheckboxStatus, parseTaskAttributes } from './step4';
-import { extractTaskDescription, extractTags } from './utils';
+import { extractTaskDescription, extractTags, extractTicktick } from './utils';
 
 // ==================== 主解析函数 ====================
 
@@ -83,17 +83,21 @@ export function parseTasksFromListItems(
         // 混合格式默认使用 tasks 格式进行解析
         const format = detectedFormat === 'mixed' ? 'tasks' : detectedFormat;
 
+        // 提取 %%content%% ticktick（在描述提取之前）
+        const { ticktick, contentWithoutTicktick } = extractTicktick(contentWithoutFilter);
+
         // ==================== 第四步：解析属性 ====================
         const task: GCTask = {
             filePath: file.path,
             fileName: file.basename,
             lineNumber: lineNumber + 1, // 转换为 1-based 行号
             content: contentWithoutFilter,
-            description: extractTaskDescription(contentWithoutFilter),
+            description: extractTaskDescription(contentWithoutTicktick),
             completed,
             cancelled,
             status,
             priority: 'normal', // 默认优先级
+            ticktick,
         };
 
         // 解析标签
@@ -275,16 +279,20 @@ export function parseSingleTaskLine(
     const detectedFormat = detectFormat(contentWithoutFilter, enabledFormats);
     const format = detectedFormat === 'mixed' ? 'tasks' : detectedFormat;
 
+    // 提取 %%content%% ticktick（在描述提取之前）
+    const { ticktick, contentWithoutTicktick } = extractTicktick(contentWithoutFilter);
+
     const task: GCTask = {
         filePath: filePath || '',
         fileName: fileName || '',
         lineNumber: lineNumber || 0,
         content: contentWithoutFilter,
-        description: extractTaskDescription(contentWithoutFilter),
+        description: extractTaskDescription(contentWithoutTicktick),
         completed,
         cancelled,
         status,
         priority: 'normal', // 默认优先级
+        ticktick,
     };
 
     // 解析标签

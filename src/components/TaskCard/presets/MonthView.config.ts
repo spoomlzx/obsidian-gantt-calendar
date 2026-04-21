@@ -15,6 +15,7 @@ export const MonthViewConfig: TaskCardConfig = {
 	showPriority: false,        // 月视图空间有限，不显示优先级
 	showFileLocation: false,
 	showWarning: false,         // 月视图不显示警告
+	showTicktick: true,
 	showGlobalFilter: false,
 
 	// 时间属性配置

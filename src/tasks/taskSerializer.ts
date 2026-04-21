@@ -20,6 +20,7 @@ export interface TaskUpdates {
 	completionDate?: Date | null;
 	content?: string;
 	tags?: string[];
+	ticktick?: string | null;
 }
 
 /**
@@ -32,6 +33,7 @@ interface MergedTask {
 	priority?: string;
 	description: string;
 	tags?: string[];  // 任务标签
+		ticktick?: string;  // ticktick 文本
 	createdDate?: Date;
 	startDate?: Date;
 	scheduledDate?: Date;
@@ -124,6 +126,8 @@ export function serializeTask(
 			fallbackDesc = fallbackDesc.replace(/[➕🛫⏳📅❌✅]\s*\d{4}-\d{2}-\d{2}/g, ' ');
 			// 移除 Dataview 字段
 			fallbackDesc = fallbackDesc.replace(/\[(priority|created|start|scheduled|due|cancelled|completion)::\s*[^\]]+\]/gi, ' ');
+			// 移除 %%content%% ticktick 块
+			fallbackDesc = fallbackDesc.replace(/%%.+?%%/g, " ");
 			// 移除标签（因为标签会单独处理）
 			fallbackDesc = fallbackDesc.replace(/#[\u4e00-\u9fa5a-zA-Z0-9_]+/g, ' ');
 			// 清理空格
@@ -142,6 +146,7 @@ export function serializeTask(
 		description: finalDescription,
 		// 保留标签，优先使用更新的标签
 		tags: updates.tags !== undefined ? updates.tags : task.tags,
+		ticktick: updates.ticktick !== undefined ? (updates.ticktick || undefined) : task.ticktick,
 		// 处理日期字段：undefined 使用原始值，null 转为 undefined（表示清除）
 		createdDate: updates.createdDate !== undefined ? (updates.createdDate || undefined) : task.createdDate,
 		startDate: updates.startDate !== undefined ? (updates.startDate || undefined) : task.startDate,
@@ -192,6 +197,11 @@ export function serializeTask(
 	// 任务描述
 	if (merged.description) {
 		parts.push(merged.description);
+	}
+
+	// ticktick
+	if (merged.ticktick) {
+		parts.push("%%" + merged.ticktick + "%%");
 	}
 
 	// 优先级（放在描述后）

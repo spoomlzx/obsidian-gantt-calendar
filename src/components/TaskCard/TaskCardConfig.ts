@@ -48,6 +48,8 @@ export interface TaskCardConfig {
 	showFileLocation: boolean;
 	/** 显示警告图标 */
 	showWarning: boolean;
+	/** 显示 ticktick（%%content%%） */
+	showTicktick: boolean;
 
 	/** ===== 时间属性配置 ===== */
 

@@ -15,6 +15,7 @@ export const DayViewConfig: TaskCardConfig = {
 	showPriority: true,
 	showFileLocation: false,    // 日视图不显示文件位置
 	showWarning: true,
+	showTicktick: true,
 	showGlobalFilter: true,
 
 	// 时间属性配置（日视图不显示时间）

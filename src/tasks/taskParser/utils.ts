@@ -60,6 +60,9 @@ export function extractTaskDescription(content: string): string {
     // 移除标签（使用统一正则入口）
     text = text.replace(RegularExpressions.DescriptionExtraction.removeTags, ' ');
 
+    // 移除 %%content%% ticktick 块
+    text = text.replace(RegularExpressions.DescriptionExtraction.removeTicktick, ' ');
+
     // 折叠多余空格并修剪首尾空格
     text = text.replace(RegularExpressions.DescriptionExtraction.collapseWhitespace, ' ').trim();
 
@@ -98,6 +101,9 @@ export function extractTasksDescription(content: string): string {
     // 移除标签（使用统一正则入口）
     text = text.replace(RegularExpressions.DescriptionExtraction.removeTags, ' ');
 
+    // 移除 %%content%% ticktick 块
+    text = text.replace(RegularExpressions.DescriptionExtraction.removeTicktick, ' ');
+
     // 折叠多余空格
     text = text.replace(RegularExpressions.DescriptionExtraction.collapseWhitespace, ' ').trim();
 
@@ -130,10 +136,56 @@ export function extractDataviewDescription(content: string): string {
     // 移除标签（使用统一正则入口）
     text = text.replace(RegularExpressions.DescriptionExtraction.removeTags, ' ');
 
+    // 移除 %%content%% ticktick 块
+    text = text.replace(RegularExpressions.DescriptionExtraction.removeTicktick, ' ');
+
     // 折叠多余空格
     text = text.replace(RegularExpressions.DescriptionExtraction.collapseWhitespace, ' ').trim();
 
     return text;
+}
+
+// ==================== ticktick 提取 ====================
+
+/**
+ * 提取任务 ticktick（%%content%% 块）
+ *
+ * 从任务内容中提取所有 %%...%% ticktick 块，将其拼接为一个字符串，
+ * 并从内容中移除这些 ticktick 块。
+ *
+ * @param content - 任务内容（已移除全局过滤器）
+ * @returns 包含 ticktick 文本和清理后内容的对象
+ *
+ * @example
+ * extractTicktick("任务 %%重要备注%% ⏫ 📅 2024-01-15")
+ * // 返回: { ticktick: "重要备注", contentWithoutTicktick: "任务  ⏫ 📅 2024-01-15" }
+ *
+ * extractTicktick("普通任务")
+ * // 返回: { ticktick: undefined, contentWithoutTicktick: "普通任务" }
+ */
+export function extractTicktick(content: string): {
+    ticktick: string | undefined;
+    contentWithoutTicktick: string;
+} {
+    const matches: string[] = [];
+    let match: RegExpExecArray | null;
+
+    const regex = RegularExpressions.DescriptionExtraction.matchTicktick;
+    regex.lastIndex = 0;
+
+    while ((match = regex.exec(content)) !== null) {
+        const text = match[1].trim();
+        if (text) {
+            matches.push(text);
+        }
+    }
+
+    const ticktick = matches.length > 0 ? matches.join(' ') : undefined;
+    const contentWithoutTicktick = content.replace(
+        RegularExpressions.DescriptionExtraction.removeTicktick, ' '
+    ).replace(/\s{2,}/g, ' ').trim();
+
+    return { ticktick, contentWithoutTicktick };
 }
 
 // ==================== 字符串处理 ====================

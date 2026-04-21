@@ -95,6 +95,11 @@ export class TaskCardComponent {
 			this.renderer.renderDescription(card, task, config);
 		}
 
+		// ticktick（%%content%%）
+		if (config.showTicktick) {
+			this.renderer.renderTicktick(card, task);
+		}
+
 		// 标签
 		if (config.showTags) {
 			this.renderer.renderTaskTags(task, card);

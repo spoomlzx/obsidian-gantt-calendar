@@ -15,6 +15,7 @@ export const GanttViewConfig: TaskCardConfig = {
 	showPriority: true,
 	showFileLocation: false,
 	showWarning: false,
+	showTicktick: false,
 	showGlobalFilter: true,
 
 	// 时间属性配置

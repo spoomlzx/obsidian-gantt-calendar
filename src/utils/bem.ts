@@ -91,6 +91,7 @@ export const TaskCardClasses = {
 		timeBadge: bem(BLOCKS.TASK_CARD, 'time-badge'),
 		file: bem(BLOCKS.TASK_CARD, 'file'),
 		warning: bem(BLOCKS.TASK_CARD, 'warning'),
+		ticktick: bem(BLOCKS.TASK_CARD, 'ticktick'),
 	},
 
 	/** Modifiers */
@@ -142,6 +143,7 @@ export const TooltipClasses = {
 	elements: {
 		description: bem(BLOCKS.TASK_TOOLTIP, 'description'),
 		priority: bem(BLOCKS.TASK_TOOLTIP, 'priority'),
+		ticktick: bem(BLOCKS.TASK_TOOLTIP, 'ticktick'),
 		times: bem(BLOCKS.TASK_TOOLTIP, 'times'),
 		timeItem: bem(BLOCKS.TASK_TOOLTIP, 'time-item'),
 		tags: bem(BLOCKS.TASK_TOOLTIP, 'tags'),
