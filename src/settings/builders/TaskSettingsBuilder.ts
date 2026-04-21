@@ -1,6 +1,6 @@
 import { Setting, SettingGroup } from 'obsidian';
 import { BaseBuilder } from './BaseBuilder';
-import { TaskStatusCard } from '../components';
+import { FolderSuggest, TaskStatusCard } from '../components';
 import { AddCustomStatusModal } from '../modals';
 import type { BuilderConfig } from '../types';
 import type { TaskStatus } from '../../tasks/taskStatus';
@@ -80,13 +80,16 @@ export class TaskSettingsBuilder extends BaseBuilder {
 			addSetting(group, setting =>
 				setting.setName('任务笔记文件夹路径')
 					.setDesc('从任务创建笔记时的默认存放路径（相对于库根目录）')
-					.addText(text => text
-						.setPlaceholder('Tasks')
-						.setValue(this.plugin.settings.taskNotePath)
-						.onChange(async (value) => {
-							this.plugin.settings.taskNotePath = value;
-							await this.plugin.saveSettings();
-						}))
+					.addSearch(cb => {
+						new FolderSuggest(this.plugin.app, cb.inputEl);
+						cb.setPlaceholder('Example: Tasks')
+							.setValue(this.plugin.settings.taskNotePath)
+							.onChange(async (value) => {
+								const trimmed = value.trim().replace(/\/$/, '');
+								this.plugin.settings.taskNotePath = trimmed;
+								await this.plugin.saveSettings();
+							});
+					})
 			);
 
 			// ========== 任务创建设置（子组） ==========

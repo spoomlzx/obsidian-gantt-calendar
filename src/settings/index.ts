@@ -9,7 +9,6 @@ export { GanttCalendarSettingTab } from './SettingTab';
 
 // 可选：按需导出构建器（供扩展使用）
 export { BaseBuilder } from './builders/BaseBuilder';
-export { TaskViewSettingsBuilder } from './builders/TaskViewSettingsBuilder';
 export { CalendarViewSettingsBuilder } from './builders/CalendarViewSettingsBuilder';
 export { FestivalColorBuilder } from './builders/FestivalColorBuilder';
 export { DayViewSettingsBuilder } from './builders/DayViewSettingsBuilder';

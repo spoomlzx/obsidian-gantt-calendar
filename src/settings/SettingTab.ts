@@ -2,7 +2,6 @@ import { App, PluginSettingTab, type IconName } from 'obsidian';
 import type GanttCalendarPlugin from '../../main';
 import { GeneralSettingsBuilder } from './builders/GeneralSettingsBuilder';
 import { TaskSettingsBuilder } from './builders/TaskSettingsBuilder';
-import { TaskViewSettingsBuilder } from './builders/TaskViewSettingsBuilder';
 import { CalendarViewSettingsBuilder } from './builders/CalendarViewSettingsBuilder';
 import { DayViewSettingsBuilder } from './builders/DayViewSettingsBuilder';
 import { WeekViewSettingsBuilder } from './builders/WeekViewSettingsBuilder';
@@ -54,14 +53,6 @@ export class GanttCalendarSettingTab extends PluginSettingTab {
 			onRefreshSettings: refreshCallback
 		});
 		taskSettingsBuilder.render();
-
-		// // ===== 任务视图设置 =====
-		// const taskViewBuilder = new TaskViewSettingsBuilder({
-		// 	containerEl,
-		// 	plugin: this.plugin,
-		// 	onRefreshSettings: refreshCallback
-		// });
-		// taskViewBuilder.render();
 
 		// ===== 日历视图设置 =====
 		const calendarViewBuilder = new CalendarViewSettingsBuilder({

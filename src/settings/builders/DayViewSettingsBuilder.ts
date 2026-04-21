@@ -1,5 +1,6 @@
-import { Setting, SettingGroup, TFolder } from 'obsidian';
+import { Setting, SettingGroup } from 'obsidian';
 import { BaseBuilder } from './BaseBuilder';
+import { FolderSuggest } from '../components';
 import type { BuilderConfig } from '../types';
 
 /**
@@ -73,38 +74,15 @@ export class DayViewSettingsBuilder extends BaseBuilder {
 		addSetting(setting => {
 			setting.setName('Daily Note 文件夹路径')
 				.setDesc('指定存放 Daily Note 文件的文件夹路径（相对于库根目录）')
-				.addText(text => {
-					text
-						.setPlaceholder('DailyNotes')
+				.addSearch(cb => {
+					new FolderSuggest(this.plugin.app, cb.inputEl);
+					cb.setPlaceholder('Example: DailyNotes')
 						.setValue(this.plugin.settings.dailyNotePath)
 						.onChange(async (value) => {
-							this.plugin.settings.dailyNotePath = value;
+							const trimmed = value.trim().replace(/\/$/, '');
+							this.plugin.settings.dailyNotePath = trimmed;
 							await this.saveAndRefresh();
 						});
-
-					// 路径预测：使用 datalist 提供文件夹候选
-					const inputEl = text.inputEl;
-					const datalistId = `gantt-dailynote-folder-suggest-${Date.now()}`;
-					inputEl.setAttr('list', datalistId);
-					const datalist = inputEl.parentElement?.createEl('datalist');
-					if (datalist) datalist.id = datalistId;
-
-					const folders = this.plugin.app.vault.getAllLoadedFiles().filter((f): f is TFolder => f instanceof TFolder);
-					const updateSuggestions = (query: string) => {
-						if (!datalist) return;
-						datalist.empty();
-						const lower = query.toLowerCase();
-						folders
-							.filter((f: TFolder) => f.path.toLowerCase().includes(lower))
-							.slice(0, 50)
-							.forEach((f: TFolder) => {
-								const opt = datalist.createEl('option');
-								opt.value = f.path;
-							});
-					};
-
-					inputEl.addEventListener('focus', () => updateSuggestions(inputEl.value || ''));
-					inputEl.addEventListener('input', () => updateSuggestions(inputEl.value || ''));
 				});
 		});
 
