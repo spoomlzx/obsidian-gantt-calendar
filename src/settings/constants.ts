@@ -19,6 +19,7 @@ export const DEFAULT_SETTINGS: GanttCalendarSettings = {
 	dayViewLayout: 'horizontal', // 默认水平（左右分屏）布局
 	dailyNotePath: 'DailyNotes', // 默认 daily note 文件夹路径
 	dailyNoteNameFormat: 'yyyy-MM-dd', // 默认文件名格式
+	followObsidianDailyNote: false, // 默认不跟随 Obsidian 日记设置
 	monthViewTaskLimit: 3, // 默认每天显示5个任务
 	yearShowTaskCount: true,
 	yearHeatmapEnabled: true,

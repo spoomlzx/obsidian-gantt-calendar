@@ -25,6 +25,7 @@ export interface GanttCalendarSettings {
 	dayViewLayout: 'horizontal' | 'vertical'; // 日视图布局：水平（左右分屏）或垂直（上下分屏）
 	dailyNotePath: string; // Daily note 文件夹路径
 	dailyNoteNameFormat: string; // Daily note 文件名格式 (如 yyyy-MM-dd)
+	followObsidianDailyNote: boolean; // 是否跟随 Obsidian 核心/Periodic Notes 插件的日记设置
 	monthViewTaskLimit: number; // 月视图每天显示的最大任务数量
 	yearShowTaskCount: boolean; // 年视图是否显示每日任务数量
 	yearHeatmapEnabled: boolean; // 年视图是否启用任务热力图

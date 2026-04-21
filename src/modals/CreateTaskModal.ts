@@ -132,7 +132,7 @@ export class CreateTaskModal extends BaseTaskModal {
 				tags: this.selectedTags.length > 0 ? this.selectedTags : undefined
 			};
 
-			await createTaskInDailyNote(this.app, taskData, this.plugin.settings);
+			await createTaskInDailyNote(this.app, taskData, this.plugin.settings, this.plugin.dailyNoteIndex);
 
 			new Notice('任务创建成功');
 			this.onSuccess();

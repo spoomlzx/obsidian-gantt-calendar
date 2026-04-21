@@ -9,6 +9,9 @@ import { App, Notice, Modal, TFile, TFolder, TAbstractFile } from 'obsidian';
 import type { GanttCalendarSettings } from '../settings';
 import { formatDate } from '../dateUtils/dateUtilsIndex';
 import { Logger } from './logger';
+import type { DailyNoteIndex } from './dailyNoteSettingsBridge';
+import { findDailyNoteForDate, getResolvedDailyNoteSettings } from './dailyNoteSettingsBridge';
+import { getDailyNote as getDailyNoteFromIndex, createDailyNote } from 'obsidian-daily-notes-interface';
 
 /**
  * 搜索结果接口
@@ -89,31 +92,61 @@ export interface CreateTaskData {
 
 /**
  * 在 Daily Note 中创建任务
- * 支持递归搜索指定文件夹及其子文件夹中的现有 Daily Note
+ * 支持 Obsidian 核心日记插件、Periodic Notes 插件和手动配置
  *
  * @param app Obsidian App 实例
  * @param taskData 任务数据
  * @param settings 插件设置
+ * @param dailyNoteIndex 日记索引缓存（Obsidian 模式时使用）
  */
 export async function createTaskInDailyNote(
 	app: App,
 	taskData: CreateTaskData,
-	settings: GanttCalendarSettings
+	settings: GanttCalendarSettings,
+	dailyNoteIndex?: DailyNoteIndex
 ): Promise<void> {
+	if (settings.followObsidianDailyNote && dailyNoteIndex) {
+		// Obsidian 模式：使用 obsidian-daily-notes-interface
+		const momentDate = window.moment();
+		const dailyNotes = dailyNoteIndex.getIndex();
+		let file = getDailyNoteFromIndex(momentDate, dailyNotes);
+
+		if (!file) {
+			// 弹出确认对话框
+			const confirmed = await new Promise<boolean>((resolve) => {
+				new ConfirmCreateModal(app, async (confirmed) => {
+					resolve(confirmed);
+				}).open();
+			});
+			if (!confirmed) {
+				new Notice('已取消创建任务');
+				return;
+			}
+			file = await createDailyNote(momentDate);
+			dailyNoteIndex.invalidate();
+		}
+
+		if (file) {
+			await insertTaskToFile(app, file, taskData, settings.newTaskHeading);
+			new Notice('已添加任务到 Daily Note');
+		}
+		return;
+	}
+
+	// 手动模式
 	const { dailyNotePath, dailyNoteNameFormat, newTaskHeading } = settings;
 
-	// 1. 构建文件名
-	const fileName = formatDate(new Date(), dailyNoteNameFormat) + '.md';
+	// 修复嵌套文件夹格式 bug：提取纯文件名用于搜索
+	const fullFormatResult = formatDate(new Date(), dailyNoteNameFormat);
+	const fileName = fullFormatResult.split('/').pop()! + '.md';
 
-	// 2. 使用递归搜索查找现有文件
 	const searchResult = findDailyNoteRecursive(app, dailyNotePath, fileName);
 
 	if (searchResult) {
-		// 找到现有文件，直接插入任务
 		await insertTaskToFile(app, searchResult.file, taskData, newTaskHeading);
 	} else {
-		// 未找到文件，在根路径创建新文件
-		const filePath = `${dailyNotePath}/${fileName}`;
+		// 创建新文件时使用完整格式路径（支持嵌套文件夹）
+		const filePath = `${dailyNotePath}/${fullFormatResult}.md`;
 		await handleMissingDailyNote(app, filePath, taskData, settings);
 	}
 }

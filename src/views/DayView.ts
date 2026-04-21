@@ -1,13 +1,12 @@
 import { TFile, MarkdownRenderer, App } from 'obsidian';
 import { BaseViewRenderer } from './BaseViewRenderer';
-import { formatDate } from '../dateUtils/dateUtilsIndex';
 import type { GCTask, SortState, StatusFilterState, TagFilterState } from '../types';
 import { sortTasks } from '../tasks/taskSorter';
 import { DEFAULT_SORT_STATE } from '../types';
 import { TaskCardClasses, DayViewClasses, withModifiers } from '../utils/bem';
 import { TaskCardComponent, DayViewConfig } from '../components/TaskCard';
 import { Logger } from '../utils/logger';
-import { findDailyNoteRecursive } from '../utils/dailyNoteHelper';
+import { findDailyNoteForDate } from '../utils/dailyNoteSettingsBridge';
 
 /**
  * 日视图渲染器
@@ -321,27 +320,26 @@ export class DayViewRenderer extends BaseViewRenderer {
 
 	/**
 	 * 加载 Daily Note 内容
-	 * 支持递归搜索指定文件夹及其子文件夹
+	 * 支持 Obsidian 核心日记插件、Periodic Notes 插件和手动配置
 	 */
 	private async loadDayViewNotes(contentContainer: HTMLElement, targetDate: Date): Promise<void> {
 		contentContainer.empty();
 		contentContainer.createEl('div', { text: '加载中...', cls: 'gantt-task-empty' });
 
 		try {
-			const folderPath = this.plugin.settings.dailyNotePath || 'DailyNotes';
-			const nameFormat = this.plugin.settings.dailyNoteNameFormat || 'yyyy-MM-dd';
-			const fileName = formatDate(targetDate, nameFormat) + '.md';
+			const file = findDailyNoteForDate(
+				targetDate,
+				this.plugin.dailyNoteIndex,
+				this.app,
+				this.plugin.settings
+			);
 
-			// 使用递归搜索查找 Daily Note（包括子文件夹）
-			const searchResult = findDailyNoteRecursive(this.app, folderPath, fileName);
-
-			if (!searchResult) {
+			if (!file) {
 				contentContainer.empty();
 				contentContainer.createEl('div', { text: '未找到 Daily Note', cls: 'gantt-task-empty' });
 				return;
 			}
 
-			const { file, relativePath } = searchResult;
 			const content = await this.app.vault.read(file);
 			contentContainer.empty();
 

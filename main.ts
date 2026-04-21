@@ -12,11 +12,13 @@ import { SettingsManager } from './src/managers/SettingsManager';
 import { ThemeManager } from './src/managers/ThemeManager';
 import { ViewManager } from './src/managers/ViewManager';
 import { SyncManagerBridge } from './src/managers/SyncManagerBridge';
+import { DailyNoteIndex } from './src/utils/dailyNoteSettingsBridge';
 
 export default class GanttCalendarPlugin extends Plugin {
 	// 公共属性（保持向后兼容）
 	settings: GanttCalendarSettings;
 	taskCache: TaskStore;
+	dailyNoteIndex: DailyNoteIndex;
 
 	// 管理器实例
 	private settingsManager: SettingsManager;
@@ -35,6 +37,10 @@ export default class GanttCalendarPlugin extends Plugin {
 		// 3. 初始化任务缓存
 		this.taskCache = new TaskStore(this.app);
 		this.scheduleTaskCacheInit();
+
+		// 3.5 初始化日记索引缓存
+		this.dailyNoteIndex = new DailyNoteIndex(this.app);
+		this.dailyNoteIndex.initialize();
 
 		// 4. 初始化视图管理器
 		this.viewManager = new ViewManager(this.app);
@@ -63,6 +69,7 @@ export default class GanttCalendarPlugin extends Plugin {
 	onunload() {
 		// 按相反顺序清理
 		this.syncManagerBridge?.destroy();
+		this.dailyNoteIndex?.destroy();
 		this.themeManager?.destroy();
 		this.taskCache?.clear();
 		TooltipManager.reset();
