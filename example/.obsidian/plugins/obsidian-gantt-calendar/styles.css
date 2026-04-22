@@ -2128,6 +2128,26 @@ Author: sugar
 	transform: scale(1.2);
 }
 
+/* ticktick (%%content%%) */
+.gc-task-card__ticktick {
+	font-size: 0.85em;
+	color: var(--text-muted);
+	font-style: italic;
+	margin-top: 2px;
+	padding-left: 4px;
+	border-left: 2px solid var(--interactive-accent);
+	opacity: 0.85;
+}
+
+.gc-task-tooltip__ticktick {
+	font-size: 0.9em;
+	color: var(--text-muted);
+	font-style: italic;
+	margin: 4px 0;
+	padding-left: 6px;
+	border-left: 2px solid var(--interactive-accent);
+}
+
 /* 6.9 Heatmap Components */
 /* 热力图色卡：蓝、绿、红（5级） - BEM类名支持 */
 /* 为年视图新类名添加热力图样式，排除非当月日期 */
