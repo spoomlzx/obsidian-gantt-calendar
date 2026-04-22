@@ -31,8 +31,7 @@ export const DEFAULT_SETTINGS: GanttCalendarSettings = {
 	taskSortOrder: 'asc', // 默认排序顺序：升序
 	defaultView: 'month', // 默认视图：月视图
 	newTaskHeading: undefined, // 默认添加到文件末尾
-	enableTemplaterForDailyNote: false, // 默认不使用 Templater
-	templaterTemplatePath: '', // 默认模板路径
+	dailyNoteTemplatePath: '',
 	defaultTaskPriority: 'medium', // 默认中等优先级
 	enableDebugMode: false, // 默认关闭开发者模式
 	showViewNavButtonText: true, // 默认显示视图导航按钮文本

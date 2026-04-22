@@ -63,7 +63,7 @@ export function getResolvedDailyNoteSettings(
 		folder: _settings.dailyNotePath || 'DailyNotes',
 		format: _settings.dailyNoteNameFormat || 'yyyy-MM-dd',
 		momentFormat: pluginToMomentFormat(_settings.dailyNoteNameFormat || 'yyyy-MM-dd'),
-		template: _settings.templaterTemplatePath || '',
+		template: _settings.dailyNoteTemplatePath || '',
 	};
 }
 

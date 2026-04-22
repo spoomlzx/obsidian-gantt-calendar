@@ -2,15 +2,13 @@
  * Daily Note Helper
  *
  * 处理 Daily Note 的检测、创建和任务插入逻辑
- * 支持 Templater 插件集成
  */
 
-import { App, Notice, Modal, TFile, TFolder, TAbstractFile } from 'obsidian';
+import { App, Notice, Modal, TFile, TFolder } from 'obsidian';
 import type { GanttCalendarSettings } from '../settings';
 import { formatDate } from '../dateUtils/dateUtilsIndex';
 import { Logger } from './logger';
 import type { DailyNoteIndex } from './dailyNoteSettingsBridge';
-import { findDailyNoteForDate, getResolvedDailyNoteSettings } from './dailyNoteSettingsBridge';
 import { getDailyNote as getDailyNoteFromIndex, createDailyNote } from 'obsidian-daily-notes-interface';
 
 /**
@@ -160,8 +158,6 @@ async function handleMissingDailyNote(
 	taskData: CreateTaskData,
 	settings: GanttCalendarSettings
 ): Promise<void> {
-	const { enableTemplaterForDailyNote, templaterTemplatePath } = settings;
-
 	// 弹出确认对话框
 	const confirmed = await new Promise<boolean>((resolve) => {
 		new ConfirmCreateModal(app, async (confirmed) => {
@@ -174,18 +170,8 @@ async function handleMissingDailyNote(
 		return;
 	}
 
-	// 检测 Templater 是否安装
-	const templater = (app as any).plugins.plugins['templater'];
-	const hasTemplater = templater?.templater && enableTemplaterForDailyNote;
-
 	try {
-		if (hasTemplater && templaterTemplatePath) {
-			// 使用 Templater 创建
-			await createWithTemplater(app, filePath, templaterTemplatePath);
-		} else {
-			// 使用简单模板创建
-			await createWithSimpleTemplate(app, filePath);
-		}
+		await createDailyNoteFromTemplate(app, filePath, settings.dailyNoteTemplatePath);
 
 		// 创建后插入任务
 		const abstractFile = app.vault.getAbstractFileByPath(filePath);
@@ -200,57 +186,68 @@ async function handleMissingDailyNote(
 }
 
 /**
- * 使用 Templater 创建 Daily Note
+ * 使用模板文件创建 Daily Note
  */
-async function createWithTemplater(
+async function createDailyNoteFromTemplate(
 	app: App,
 	filePath: string,
 	templatePath: string
 ): Promise<void> {
-	const templater = (app as any).plugins.plugins['templater'];
-	if (!templater?.templater) {
-		throw new Error('Templater 插件未找到');
-	}
-
-	const { tp } = templater.templater;
-	const templateFile = app.vault.getAbstractFileByPath(templatePath);
-
-	if (!templateFile || !(templateFile instanceof TFile)) {
-		throw new Error(`模板文件未找到: ${templatePath}`);
-	}
-
-	// 获取目标文件夹
-	const folderPath = filePath.split('/').slice(0, -1).join('/');
-	const folder = app.vault.getAbstractFileByPath(folderPath);
-
-	// 创建文件夹（如果不存在）
-	if (!folder) {
-		await app.vault.createFolder(folderPath);
-	}
-
-	// 使用 Templater 创建笔记
-	const abstractFolder = app.vault.getAbstractFileByPath(folderPath);
-	if (abstractFolder instanceof TFolder) {
-		await tp.file.create_new_note_from_template(templateFile, abstractFolder);
-	}
-}
-
-/**
- * 使用简单模板创建 Daily Note
- */
-async function createWithSimpleTemplate(app: App, filePath: string): Promise<void> {
-	const today = formatDate(new Date(), 'yyyy-MM-dd');
-	const content = `# ${today}\n\n`;
-
 	// 确保文件夹存在
 	const folderPath = filePath.split('/').slice(0, -1).join('/');
-	const folder = app.vault.getAbstractFileByPath(folderPath);
+	if (folderPath) {
+		const folder = app.vault.getAbstractFileByPath(folderPath);
+		if (!folder) {
+			await app.vault.createFolder(folderPath);
+		}
+	}
 
-	if (!folder) {
-		await app.vault.createFolder(folderPath);
+	let content = '';
+
+	if (templatePath) {
+		const templateFile = app.vault.getAbstractFileByPath(templatePath);
+		if (templateFile instanceof TFile) {
+			content = await app.vault.read(templateFile);
+			content = replaceTemplateVariables(content, filePath);
+		} else {
+			throw new Error(`模板文件未找到: ${templatePath}`);
+		}
 	}
 
 	await app.vault.create(filePath, content);
+}
+
+/**
+ * 替换模板变量
+ * 支持 {{date}}、{{time}}、{{title}}、{{date:FORMAT}}、{{yesterday}}、{{tomorrow}}
+ */
+function replaceTemplateVariables(content: string, filePath: string): string {
+	const moment = window.moment;
+	const date = moment();
+	const filename = filePath.split('/').pop()!.replace(/\.md$/, '');
+
+	// 先处理带格式和偏移的复杂模式 {{date:FORMAT}}、{{date+1d:FORMAT}}
+	content = content.replace(
+		/{{\s*(date|time)\s*(([+-]\d+)([yqmwdhs]))?\s*(:.+?)?}}/gi,
+		(_, _key, _calc, delta, unit, fmt) => {
+			const current = date.clone();
+			if (delta && unit) {
+				current.add(parseInt(delta, 10), unit);
+			}
+			if (fmt) {
+				return current.format(fmt.substring(1).trim());
+			}
+			return current.format('YYYY-MM-DD');
+		}
+	);
+
+	content = content.replace(/{{\s*date\s*}}/gi, filename);
+	content = content.replace(/{{\s*time\s*}}/gi, moment().format('HH:mm'));
+	content = content.replace(/{{\s*title\s*}}/gi, filename);
+	content = content.replace(/{{\s*yesterday\s*}}/gi, date.clone().subtract(1, 'day').format('YYYY-MM-DD'));
+	content = content.replace(/{{\s*tomorrow\s*}}/gi, date.clone().add(1, 'day').format('YYYY-MM-DD'));
+
+	return content;
 }
 
 /**

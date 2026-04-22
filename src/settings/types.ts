@@ -37,8 +37,7 @@ export interface GanttCalendarSettings {
 	taskSortOrder: SortOrder; // 任务排序顺序
 	defaultView: 'day' | 'week' | 'month' | 'year' | 'task' | 'gantt'; // 默认视图
 	newTaskHeading?: string; // 新任务插入的标题（留空则添加到文件末尾）
-	enableTemplaterForDailyNote: boolean; // 是否启用 Templater 集成
-	templaterTemplatePath: string; // Templater 模板路径
+	dailyNoteTemplatePath: string;
 	defaultTaskPriority: 'highest' | 'high' | 'medium' | 'low' | 'lowest' | 'normal'; // 默认任务优先级
 	enableDebugMode: boolean; // 是否启用开发者模式（详细日志）
 	showViewNavButtonText: boolean; // 是否显示视图导航按钮文本

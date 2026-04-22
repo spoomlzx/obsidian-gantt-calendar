@@ -2,7 +2,6 @@ import { AbstractInputSuggest, App, TAbstractFile, TFolder } from 'obsidian';
 
 /**
  * 文件夹路径建议组件
- * 参考 Templater 插件的 FolderSuggest 实现
  * 在设置面板中为路径输入框提供文件夹自动补全
  */
 export class FolderSuggest extends AbstractInputSuggest<TFolder> {

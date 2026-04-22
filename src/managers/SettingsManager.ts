@@ -34,6 +34,9 @@ export class SettingsManager {
 		// 迁移旧的颜色格式到新的主题分离格式
 		await this.migrateTaskStatusColors(settings);
 
+		// 迁移 Templater 设置到新的模板文件路径
+		await this.migrateTemplaterSettings(settings);
+
 		// 更新 CSS 变量
 		this.updateCSSVariables(settings);
 
@@ -55,6 +58,17 @@ export class SettingsManager {
 		document.documentElement.style.setProperty('--festival-solar-color', settings.solarFestivalColor);
 		document.documentElement.style.setProperty('--festival-lunar-color', settings.lunarFestivalColor);
 		document.documentElement.style.setProperty('--festival-solar-term-color', settings.solarTermColor);
+	}
+
+	/**
+	 * 迁移 Templater 设置到新的模板文件路径
+	 */
+	private async migrateTemplaterSettings(settings: GanttCalendarSettings): Promise<void> {
+		const data = await this.plugin.loadData() as Record<string, unknown> || {};
+		if ('templaterTemplatePath' in data && !('dailyNoteTemplatePath' in data)) {
+			settings.dailyNoteTemplatePath = (data as any).templaterTemplatePath || '';
+			await this.plugin.saveData(settings);
+		}
 	}
 
 	/**

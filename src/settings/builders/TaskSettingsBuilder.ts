@@ -117,33 +117,6 @@ export class TaskSettingsBuilder extends BaseBuilder {
 							await this.plugin.saveSettings();
 						}));
 
-				// Templater 集成
-				const templaterToggle = new Setting(subSettingContainer);
-				templaterToggle.setName('启用 Templater 集成(此功能待完善)')
-					.setDesc('创建 Daily Note 时使用 Templater 插件的模板（需安装 Templater）')
-					.addToggle(toggle => toggle
-						.setValue(this.plugin.settings.enableTemplaterForDailyNote || false)
-						.onChange(async (value) => {
-							this.plugin.settings.enableTemplaterForDailyNote = value;
-							await this.plugin.saveSettings();
-							// 刷新显示关联设置
-							this.plugin.refreshCalendarViews();
-						}));
-
-				// Templater 模板路径（条件渲染）
-				if (this.plugin.settings.enableTemplaterForDailyNote) {
-					const templaterPath = new Setting(subSettingContainer);
-					templaterPath.setName('Templater 模板路径')
-						.setDesc('指定用于创建 Daily Note 的模板文件路径')
-						.addText(text => text
-							.setPlaceholder('Templates/Daily Note Template.md')
-							.setValue(this.plugin.settings.templaterTemplatePath || '')
-							.onChange(async (value) => {
-								this.plugin.settings.templaterTemplatePath = value;
-								await this.plugin.saveSettings();
-							}));
-				}
-
 				// 默认优先级
 				const defaultPriority = new Setting(subSettingContainer);
 				defaultPriority.setName('默认任务优先级')
