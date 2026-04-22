@@ -87,7 +87,7 @@ class EditTaskModal extends BaseTaskModal {
 			cls: EditTaskModalClasses.elements.sectionLabel
 		});
 		descContainer.createEl('div', {
-			text: '不支持换行，Enter 键将转为空格',
+			text: '按 Enter 键可快捷提交',
 			cls: EditTaskModalClasses.elements.sectionHint
 		});
 
@@ -96,17 +96,11 @@ class EditTaskModal extends BaseTaskModal {
 		});
 		textArea.value = this.task.description || '';
 
-		// 阻止换行：Enter 键转为空格
+		// Enter 键触发保存
 		textArea.addEventListener('keydown', (e) => {
 			if (e.key === 'Enter') {
 				e.preventDefault();
-				const start = textArea.selectionStart;
-				const end = textArea.selectionEnd;
-				const value = textArea.value;
-				textArea.value = value.slice(0, start) + ' ' + value.slice(end);
-				textArea.selectionStart = textArea.selectionEnd = start + 1;
-				this.content = textArea.value;
-				this.contentChanged = true;
+				this.saveTask();
 			}
 		});
 
