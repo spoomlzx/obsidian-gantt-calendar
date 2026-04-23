@@ -17,6 +17,7 @@ import {
     parsePriorityFromDataview,
 } from '../taskSerializerSymbols';
 import { TaskStatusType, parseStatusFromCheckbox } from '../taskStatus';
+import { createDate } from '../../dateUtils/timezone';
 
 // ==================== 类型定义 ====================
 
@@ -219,7 +220,7 @@ export function parseTasksDates(content: string): ParsedDates {
         regex.lastIndex = 0; // 重置正则索引
         const match = regex.exec(content);
         if (match && match[1]) {
-            dates[field as DateFieldType] = new Date(match[1]);
+            dates[field as DateFieldType] = createDate(match[1]);
         }
     }
 
@@ -318,7 +319,7 @@ export function parseDataviewDates(content: string): ParsedDates {
         regex.lastIndex = 0;
         const match = regex.exec(content);
         if (match && match[1]) {
-            const date = new Date(match[1]);
+            const date = createDate(match[1]);
             // 验证日期有效性
             if (!isNaN(date.getTime())) {
                 dates[field as DateFieldType] = date;
@@ -438,7 +439,7 @@ export function parseDateField(
     const match = regex.exec(content);
 
     if (match && match[1]) {
-        const date = new Date(match[1]);
+        const date = createDate(match[1]);
         return isNaN(date.getTime()) ? undefined : date;
     }
 

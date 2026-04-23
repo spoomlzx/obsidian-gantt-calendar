@@ -8,6 +8,7 @@ import { updateTaskCompletion } from '../../tasks/taskUpdater';
 import { getStatusColor, DEFAULT_TASK_STATUSES, getCurrentThemeMode } from '../../tasks/taskStatus';
 import { RegularExpressions } from '../../utils/RegularExpressions';
 import { formatDate } from '../../dateUtils/dateUtilsIndex';
+import { toISOStringLocal } from '../../dateUtils/timezone';
 import { TooltipManager } from '../../utils/tooltipManager';
 import { Logger } from '../../utils/logger';
 import { TagPill } from '../tagPill';
@@ -291,7 +292,7 @@ export class TaskCardRenderer {
 		card.setAttribute('data-task-id', `${task.filePath}:${task.lineNumber}`);
 
 		if (targetDate) {
-			card.setAttribute('data-target-date', targetDate.toISOString().split('T')[0]);
+			card.setAttribute('data-target-date', toISOStringLocal(targetDate));
 		}
 
 		// 获取 TooltipManager 单例

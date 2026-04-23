@@ -19,6 +19,7 @@ import { GanttClasses } from '../../utils/bem';
 import { TooltipManager, type MousePosition } from '../../utils/tooltipManager';
 import { Logger } from '../../utils/logger';
 import { LinkRenderer } from '../../utils/linkRenderer';
+import { getTodayInTimezone } from '../../dateUtils/timezone';
 
 /**
  * SVG 元素辅助方法
@@ -313,7 +314,7 @@ export class SvgGanttRenderer {
 		const config = GRANULARITY_CONFIGS[this.granularity];
 
 		if (this.tasks.length === 0) {
-			const today = new Date();
+			const today = getTodayInTimezone();
 			const defaultUnits = 30; // 默认30个单元
 			return {
 				minDate: today,
@@ -922,7 +923,7 @@ export class SvgGanttRenderer {
 			const y = this.headerHeight / 2;
 
 			// 判断是否是今天所在的单元
-			const today = new Date();
+			const today = getTodayInTimezone();
 			const isCurrentUnit = this.isSameUnit(unitDate, today, granularity);
 
 			// 绘制标签 - 居中于格子内（两条竖线之间）
@@ -1154,7 +1155,7 @@ export class SvgGanttRenderer {
 	): void {
 		if (!svg) return;
 
-		const today = new Date();
+		const today = getTodayInTimezone();
 		const config = GRANULARITY_CONFIGS[granularity];
 		const unitsDiff = (today.getTime() - minDate.getTime()) / config.milliseconds;
 
@@ -1879,7 +1880,7 @@ export class SvgGanttRenderer {
 	scrollToToday(): void {
 		if (!this.ganttContainer || !this.minDate) return;
 
-		const today = new Date();
+		const today = getTodayInTimezone();
 		const config = GRANULARITY_CONFIGS[this.granularity];
 		const unitsDiff = (today.getTime() - this.minDate.getTime()) / config.milliseconds;
 

@@ -10,6 +10,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { GCTask } from '../../types';
 import type { GCTaskWithSync, TaskMatchGroup, DataSourceType } from './syncTypes';
+import { toISOStringLocal } from '../../dateUtils/timezone';
 
 /**
  * 生成模糊匹配键
@@ -24,7 +25,7 @@ function generateFuzzyKey(task: GCTask): string {
 
     // 获取主要日期（优先 dueDate，其次 startDate）
     const primaryDate = task.dueDate || task.startDate;
-    const dateStr = primaryDate ? primaryDate.toISOString().split('T')[0] : '';
+    const dateStr = primaryDate ? toISOStringLocal(primaryDate) : '';
 
     return `${normalizedDesc}:${dateStr}`;
 }

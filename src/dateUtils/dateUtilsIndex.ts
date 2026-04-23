@@ -7,4 +7,5 @@
 export * from './dateCompare';
 export * from './format';
 export * from './today';
+export * from './timezone';
 export * from './week';

@@ -9,6 +9,7 @@ import { TooltipManager } from '../utils/tooltipManager';
 import { updateTaskDateField } from '../tasks/taskUpdater';
 import { sortTasks } from '../tasks/taskSorter';
 import { DEFAULT_SORT_STATE } from '../types';
+import { toISOStringLocal, createDate } from '../dateUtils/timezone';
 
 /**
  * 月视图渲染器
@@ -170,7 +171,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 				const dayEl = monthContainer.createEl('div');
 				dayEl.addClass(MonthViewClasses.elements.dayCell);
 				// 添加日期标识，用于增量刷新时定位
-				dayEl.dataset.date = day.date.toISOString();
+				dayEl.dataset.date = toISOStringLocal(day.date);
 				// 设置grid位置：第(weekIndex + 2)行，第(dayIndex + 2)列
 				dayEl.style.gridRow = `${weekIndex + 2}`;
 				dayEl.style.gridColumn = `${dayIndex + 2}`;
@@ -244,7 +245,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 			const dayCell = tasksContainer.parentElement;
 			const dateStr = dayCell?.dataset.date;
 			if (dateStr) {
-				const date = new Date(dateStr);
+				const date = createDate(dateStr);
 				this.loadMonthViewTasks(tasksContainer as HTMLElement, date);
 			}
 		});

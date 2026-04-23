@@ -6,6 +6,7 @@ import { TaskStore } from './src/TaskStore';
 import { registerAllCommands } from './src/commands/commandsIndex';
 import { TooltipManager } from './src/utils/tooltipManager';
 import { Logger } from './src/utils/logger';
+import { setTimezoneOffset } from './src/dateUtils/timezone';
 
 // 管理器
 import { SettingsManager } from './src/managers/SettingsManager';
@@ -33,6 +34,9 @@ export default class GanttCalendarPlugin extends Plugin {
 
 		// 2. 初始化日志
 		Logger.init(this);
+
+		// 2.5 初始化时区设置
+		setTimezoneOffset(this.settings.timezoneOffset);
 
 		// 3. 初始化任务缓存
 		this.taskCache = new TaskStore(this.app);

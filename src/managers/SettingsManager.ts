@@ -10,6 +10,7 @@ import { DEFAULT_SETTINGS } from '../settings/constants';
 import type { GanttCalendarSettings } from '../settings/types';
 import { TaskStatus, ThemeColors } from '../tasks/taskStatus';
 import { Logger } from '../utils/logger';
+import { setTimezoneOffset } from '../dateUtils/timezone';
 
 /**
  * 设置管理器
@@ -49,6 +50,8 @@ export class SettingsManager {
 	async saveSettings(settings: GanttCalendarSettings): Promise<void> {
 		await this.plugin.saveData(settings);
 		this.updateCSSVariables(settings);
+		// 同步时区设置到时区模块
+		setTimezoneOffset(settings.timezoneOffset);
 	}
 
 	/**

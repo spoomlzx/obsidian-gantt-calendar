@@ -11,6 +11,7 @@
 import { TFile, ListItemCache } from 'obsidian';
 import { GCTask } from '../types';
 import { RegularExpressions } from '../utils/RegularExpressions';
+import { createDate } from '../dateUtils/timezone';
 
 // 导入新模块的实现
 import {
@@ -121,7 +122,7 @@ function parseTasksDateField(content: string, field: string): Date | undefined {
     regex.lastIndex = 0;
     const match = regex.exec(content);
     if (match && match[1]) {
-        return new Date(match[1]);
+        return createDate(match[1]);
     }
     return undefined;
 }
@@ -192,7 +193,7 @@ function parseDataviewDateField(content: string, field: string): Date | undefine
     regex.lastIndex = 0;
     const match = regex.exec(content);
     if (match && match[1]) {
-        const date = new Date(match[1]);
+        const date = createDate(match[1]);
         if (!isNaN(date.getTime())) {
             return date;
         }

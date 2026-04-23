@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf, setIcon, Notice } from 'obsidian';
 import { CalendarViewType } from './types';
 import { getWeekOfDate, formatDate, formatMonth, getTodayDate } from './dateUtils/dateUtilsIndex';
+import { getTodayInTimezone } from './dateUtils/timezone';
 import { solarToLunar, getShortLunarText } from './lunar/lunar';
 import { YearViewRenderer } from './views/YearView';
 import { MonthViewRenderer } from './views/MonthView';
@@ -14,7 +15,7 @@ import { Logger } from './utils/logger';
 export const GC_VIEW_ID = 'gantt-calendar-view';
 
 export class GCMainView extends ItemView {
-	private currentDate: Date = new Date();
+	private currentDate: Date = new Date(); // 将在 onOpen 中通过 getTodayInTimezone() 初始化
 	private viewType: CalendarViewType = 'year';
 	private resizeObserver: ResizeObserver | null = null;
 	private plugin: any;
@@ -64,6 +65,9 @@ export class GCMainView extends ItemView {
 	}
 
 	async onOpen(): Promise<void> {
+		// 使用时区感知的"今天"初始化当前日期
+		this.currentDate = getTodayInTimezone();
+
 		// 等待任务缓存准备完成
 		if (this.plugin?.taskCache?.whenReady) {
 			await this.plugin.taskCache.whenReady();

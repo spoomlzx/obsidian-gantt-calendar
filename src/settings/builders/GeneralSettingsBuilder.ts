@@ -1,6 +1,7 @@
 import { Setting, SettingGroup } from 'obsidian';
 import { BaseBuilder } from './BaseBuilder';
 import type { BuilderConfig } from '../types';
+import { TIMEZONE_OPTIONS } from '../../dateUtils/timezone';
 
 /**
  * 通用设置构建器
@@ -66,6 +67,24 @@ export class GeneralSettingsBuilder extends BaseBuilder {
 							await this.saveAndRefresh();
 						}))
 			);
-		});
+		// 时区设置
+				addSetting(setting =>
+					setting.setName('时区')
+						.setDesc('选择日历视图使用的时区。影响"今天"的判定和日历高亮')
+						.addDropdown(drop => {
+							// 添加选项
+							for (const [key, label] of Object.entries(TIMEZONE_OPTIONS)) {
+								drop.addOption(key, label);
+							}
+							// 设置当前值
+							const currentValue = this.plugin.settings.timezoneOffset;
+							drop.setValue(currentValue === null ? 'null' : String(currentValue));
+							drop.onChange(async (value) => {
+								this.plugin.settings.timezoneOffset = value === 'null' ? null : parseInt(value, 10);
+								await this.saveAndRefresh();
+							});
+						})
+				);
+			});
 	}
 }

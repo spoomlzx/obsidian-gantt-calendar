@@ -1,6 +1,7 @@
 import { CalendarDay, CalendarWeek } from '../types';
 import { solarToLunar, getShortLunarText } from '../lunar/lunar';
 import { isToday } from './dateCompare';
+import { getTodayInTimezone } from './timezone';
 
 /**
  * Get start of week for a given date
@@ -39,7 +40,7 @@ export function getWeekNumber(date: Date, baseYear?: number, startOnMonday: bool
  * Check if date is in current week
  */
 export function isThisWeek(date: Date, startOnMonday: boolean = true): boolean {
-	const today = new Date();
+	const today = getTodayInTimezone();
 	const weekStart = startOfWeek(today, startOnMonday);
 	const weekEnd = new Date(weekStart);
 	weekEnd.setDate(weekEnd.getDate() + 7);

@@ -8,6 +8,7 @@ import { TaskCardComponent, WeekViewConfig } from '../components/TaskCard';
 import { Logger } from '../utils/logger';
 import { TooltipManager } from '../utils/tooltipManager';
 import { WeekViewClasses } from '../utils/bem';
+import { toISOStringLocal, createDate } from '../dateUtils/timezone';
 
 /**
  * 周视图渲染器
@@ -109,7 +110,7 @@ export class WeekViewRenderer extends BaseViewRenderer {
 		weekData.days.forEach((day) => {
 			const dayTasksColumn = tasksGrid.createDiv(WeekViewClasses.elements.tasksColumn);
 			// 添加日期标识，用于增量刷新时定位
-			dayTasksColumn.dataset.date = day.date.toISOString();
+			dayTasksColumn.dataset.date = toISOStringLocal(day.date);
 			if (day.isToday) {
 				dayTasksColumn.addClass(WeekViewClasses.modifiers.tasksColumnToday);
 			}
@@ -134,7 +135,7 @@ export class WeekViewRenderer extends BaseViewRenderer {
 		taskColumns.forEach((column) => {
 			const dateStr = (column as HTMLElement).dataset.date;
 			if (dateStr) {
-				const date = new Date(dateStr);
+				const date = createDate(dateStr);
 				this.loadWeekViewTasks(column as HTMLElement, date);
 			}
 		});

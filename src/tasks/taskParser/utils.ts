@@ -9,6 +9,7 @@
  */
 
 import { RegularExpressions } from '../../utils/RegularExpressions';
+import { createDate, isValidDate } from '../../dateUtils/timezone';
 
 // ==================== 描述提取 ====================
 
@@ -267,8 +268,7 @@ export function truncateText(text: string, maxLength: number, suffix = '...'): s
  * ```
  */
 export function isValidDateString(dateStr: string): boolean {
-    const date = new Date(dateStr);
-    return !isNaN(date.getTime());
+	return isValidDate(dateStr);
 }
 
 /**
@@ -305,8 +305,8 @@ export function formatDate(date: Date): string {
  * ```
  */
 export function parseDate(dateStr: string): Date | null {
-    const date = new Date(dateStr);
-    return isNaN(date.getTime()) ? null : date;
+	const date = createDate(dateStr);
+	return isNaN(date.getTime()) ? null : date;
 }
 
 // ==================== 验证函数 ====================

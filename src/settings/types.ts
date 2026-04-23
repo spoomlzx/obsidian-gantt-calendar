@@ -41,6 +41,7 @@ export interface GanttCalendarSettings {
 	defaultTaskPriority: 'highest' | 'high' | 'medium' | 'low' | 'lowest' | 'normal'; // 默认任务优先级
 	enableDebugMode: boolean; // 是否启用开发者模式（详细日志）
 	showViewNavButtonText: boolean; // 是否显示视图导航按钮文本
+	timezoneOffset: number | null; // 时区偏移量（分钟），null 表示跟随系统
 
 	// ========== 持久化筛选和排序状态 ==========
 

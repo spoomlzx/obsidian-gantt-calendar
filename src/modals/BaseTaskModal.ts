@@ -16,6 +16,7 @@ import { App, Modal } from 'obsidian';
 import type { GCTask } from '../types';
 import { EditTaskModalClasses } from '../utils/bem';
 import { TagSelector } from '../components/TagSelector';
+import { createDate } from '../dateUtils/timezone';
 
 /**
  * 优先级选项
@@ -1174,7 +1175,7 @@ export abstract class BaseTaskModal extends Modal {
 	protected parseDate(dateStr: string): Date | null {
 		const match = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
 		if (!match) return null;
-		const date = new Date(dateStr);
+		const date = createDate(dateStr);
 		return isNaN(date.getTime()) ? null : date;
 	}
 }
