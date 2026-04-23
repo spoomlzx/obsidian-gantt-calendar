@@ -8,6 +8,7 @@ import { TaskCardComponent, WeekViewConfig } from '../components/TaskCard';
 import { Logger } from '../utils/logger';
 import { TooltipManager } from '../utils/tooltipManager';
 import { WeekViewClasses } from '../utils/bem';
+import { generateVirtualInstances } from '../tasks/virtualTaskGenerator';
 
 /**
  * 周视图渲染器
@@ -106,6 +107,21 @@ export class WeekViewRenderer extends BaseViewRenderer {
 
 		// 任务网格 - 七列
 		const tasksGrid = weekGrid.createDiv(WeekViewClasses.elements.tasksGrid);
+
+		// 预生成整周的虚拟周期实例
+		const dateField = this.plugin.settings.dateFilterField || 'dueDate';
+		const weekStart = new Date(weekData.days[0].date);
+		weekStart.setHours(0, 0, 0, 0);
+		const weekEnd = new Date(weekData.days[6].date);
+		weekEnd.setHours(0, 0, 0, 0);
+
+		const allRealTasks = this.applyTagFilter(
+			this.applyStatusFilter(this.plugin.taskCache.getAllTasks())
+		);
+		const allVirtualInstances = generateVirtualInstances(
+			allRealTasks, weekStart, weekEnd, dateField
+		);
+
 		weekData.days.forEach((day) => {
 			const dayTasksColumn = tasksGrid.createDiv(WeekViewClasses.elements.tasksColumn);
 			// 添加日期标识，用于增量刷新时定位
@@ -114,8 +130,8 @@ export class WeekViewRenderer extends BaseViewRenderer {
 				dayTasksColumn.addClass(WeekViewClasses.modifiers.tasksColumnToday);
 			}
 
-			// 加载任务
-			this.loadWeekViewTasks(dayTasksColumn, day.date);
+			// 加载任务（传入预生成的虚拟实例）
+			this.loadWeekViewTasks(dayTasksColumn, day.date, allVirtualInstances);
 
 			// 设置拖拽目标
 			this.setupDragDropForColumn(dayTasksColumn, day.date);
@@ -198,7 +214,11 @@ export class WeekViewRenderer extends BaseViewRenderer {
 	/**
 	 * 加载周视图任务
 	 */
-	private async loadWeekViewTasks(columnContainer: HTMLElement, targetDate: Date): Promise<void> {
+	private async loadWeekViewTasks(
+		columnContainer: HTMLElement,
+		targetDate: Date,
+		precomputedVirtualInstances?: GCTask[]
+	): Promise<void> {
 		columnContainer.empty();
 
 		try {
@@ -212,7 +232,7 @@ export class WeekViewRenderer extends BaseViewRenderer {
 			const normalizedTarget = new Date(targetDate);
 			normalizedTarget.setHours(0, 0, 0, 0);
 
-			// 筛选当天任务
+			// 筛选当天真实任务
 			let currentDayTasks = tasks.filter(task => {
 				const dateValue = (task as any)[dateField];
 				if (!dateValue) return false;
@@ -223,6 +243,28 @@ export class WeekViewRenderer extends BaseViewRenderer {
 
 				return taskDate.getTime() === normalizedTarget.getTime();
 			});
+
+			// 获取虚拟周期实例
+			let virtualForDay: GCTask[] = [];
+			if (precomputedVirtualInstances) {
+				// 使用预计算的虚拟实例
+				virtualForDay = precomputedVirtualInstances.filter(task => {
+					const dateValue = (task as any)[dateField];
+					if (!dateValue) return false;
+					const taskDate = new Date(dateValue);
+					if (isNaN(taskDate.getTime())) return false;
+					taskDate.setHours(0, 0, 0, 0);
+					return taskDate.getTime() === normalizedTarget.getTime();
+				});
+			} else {
+				// 增量刷新时重新计算虚拟实例（单日范围）
+				const dayStart = new Date(normalizedTarget);
+				const dayEnd = new Date(normalizedTarget);
+				virtualForDay = generateVirtualInstances(tasks, dayStart, dayEnd, dateField);
+			}
+
+			// 合并真实任务和虚拟实例
+			currentDayTasks = [...currentDayTasks, ...virtualForDay];
 
 			// 应用排序
 			currentDayTasks = sortTasks(currentDayTasks, this.sortState);

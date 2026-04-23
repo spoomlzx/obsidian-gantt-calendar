@@ -9,6 +9,7 @@ import { TooltipManager } from '../utils/tooltipManager';
 import { updateTaskDateField } from '../tasks/taskUpdater';
 import { sortTasks } from '../tasks/taskSorter';
 import { DEFAULT_SORT_STATE } from '../types';
+import { generateVirtualInstances } from '../tasks/virtualTaskGenerator';
 
 /**
  * 月视图渲染器
@@ -156,6 +157,21 @@ export class MonthViewRenderer extends BaseViewRenderer {
 			monthContainer.createEl('div', { text: day, cls: MonthViewClasses.elements.weekday });
 		});
 
+		// 预生成整月的虚拟周期实例
+		const dateField = this.plugin.settings.dateFilterField || 'dueDate';
+		const allDays = monthData.days;
+		const monthStart = new Date(allDays[0].date);
+		monthStart.setHours(0, 0, 0, 0);
+		const monthEnd = new Date(allDays[allDays.length - 1].date);
+		monthEnd.setHours(0, 0, 0, 0);
+
+		const allRealTasks = this.applyTagFilter(
+			this.applyStatusFilter(this.plugin.taskCache.getAllTasks())
+		);
+		const allVirtualInstances = generateVirtualInstances(
+			allRealTasks, monthStart, monthEnd, dateField
+		);
+
 		// 展平渲染：6行周数据，每行包含1个周编号 + 7个日期格子
 		monthData.weeks.forEach((week, weekIndex) => {
 			// 周编号 - 每周的第1列
@@ -206,7 +222,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 
 				// 任务列表
 				const tasksContainer = dayEl.createDiv(MonthViewClasses.elements.tasks);
-				this.loadMonthViewTasks(tasksContainer, day.date);
+				this.loadMonthViewTasks(tasksContainer, day.date, allVirtualInstances);
 
 				// 设置拖放目标
 				this.setupDragDropForDayCell(dayEl, day.date);
@@ -253,7 +269,11 @@ export class MonthViewRenderer extends BaseViewRenderer {
 	/**
 	 * 加载月视图任务
 	 */
-	private async loadMonthViewTasks(container: HTMLElement, targetDate: Date): Promise<void> {
+	private async loadMonthViewTasks(
+		container: HTMLElement,
+		targetDate: Date,
+		precomputedVirtualInstances?: GCTask[]
+	): Promise<void> {
 		container.empty();
 
 		try {
@@ -267,7 +287,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 			const normalizedTarget = new Date(targetDate);
 			normalizedTarget.setHours(0, 0, 0, 0);
 
-			// 筛选当天任务
+			// 筛选当天真实任务
 			let currentDayTasks = tasks.filter(task => {
 				const dateValue = (task as any)[dateField];
 				if (!dateValue) return false;
@@ -278,6 +298,27 @@ export class MonthViewRenderer extends BaseViewRenderer {
 
 				return taskDate.getTime() === normalizedTarget.getTime();
 			});
+
+			// 获取虚拟周期实例
+			let virtualForDay: GCTask[] = [];
+			if (precomputedVirtualInstances) {
+				virtualForDay = precomputedVirtualInstances.filter(task => {
+					const dateValue = (task as any)[dateField];
+					if (!dateValue) return false;
+					const taskDate = new Date(dateValue);
+					if (isNaN(taskDate.getTime())) return false;
+					taskDate.setHours(0, 0, 0, 0);
+					return taskDate.getTime() === normalizedTarget.getTime();
+				});
+			} else {
+				// 增量刷新时重新计算虚拟实例（单日范围）
+				const dayStart = new Date(normalizedTarget);
+				const dayEnd = new Date(normalizedTarget);
+				virtualForDay = generateVirtualInstances(tasks, dayStart, dayEnd, dateField);
+			}
+
+			// 合并真实任务和虚拟实例
+			currentDayTasks = [...currentDayTasks, ...virtualForDay];
 
 			// 应用排序
 			currentDayTasks = sortTasks(currentDayTasks, this.sortState);
