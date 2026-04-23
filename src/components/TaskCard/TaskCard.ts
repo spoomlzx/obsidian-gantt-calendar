@@ -2,6 +2,7 @@ import type { TaskCardConfig, TaskCardProps, TaskCardRenderResult } from './Task
 import { TaskCardRenderer } from './TaskCardRenderer';
 import { TaskCardClasses } from '../../utils/bem';
 import type { GCTask } from '../../types';
+import { isVirtualTask, getVirtualMetadata } from '../../tasks/virtualTaskGenerator';
 
 /**
  * 任务卡片统一组件
@@ -49,7 +50,7 @@ export class TaskCardComponent {
 	 * 创建卡片元素
 	 */
 	private createCardElement(): HTMLElement {
-		const { config } = this.props;
+		const { config, task } = this.props;
 		const card = document.createElement('div');
 		card.className = TaskCardClasses.block;
 
@@ -63,6 +64,13 @@ export class TaskCardComponent {
 		// 应用紧凑模式
 		if (config.compact) {
 			card.addClass('gc-task-card--compact');
+		}
+
+		// 周期任务/虚拟实例修饰符
+		if (isVirtualTask(task)) {
+			card.addClass(TaskCardClasses.modifiers.virtual);
+		} else if (task.repeat) {
+			card.addClass(TaskCardClasses.modifiers.recurring);
 		}
 
 		return card;
@@ -100,6 +108,11 @@ export class TaskCardComponent {
 			this.renderer.renderTicktick(card, task);
 		}
 
+		// 周期指示器（虚拟实例和真实周期任务都显示）
+		if (task.repeat) {
+			this.renderer.renderRepeatIndicator(card);
+		}
+
 		// 标签
 		if (config.showTags) {
 			this.renderer.renderTaskTags(task, card);
@@ -133,6 +146,32 @@ export class TaskCardComponent {
 		const { props } = this;
 		const config = props.config;
 
+		if (isVirtualTask(task)) {
+			// 虚拟任务：点击打开源任务文件
+			card.addEventListener('click', async (e) => {
+				e.stopPropagation();
+				const meta = getVirtualMetadata(task);
+				if (meta) {
+					const [filePath, lineStr] = meta.sourceTaskId.split(':');
+					const lineNumber = parseInt(lineStr);
+					await this.renderer.openTaskFile({
+						...task,
+						filePath,
+						lineNumber,
+					});
+				}
+				props.onClick?.(task);
+			});
+
+			// 虚拟任务不启用拖拽
+			// 虚拟任务仍然显示悬浮提示
+			if (config.enableTooltip) {
+				this.renderer.attachTooltip(card, task);
+			}
+			return;
+		}
+
+		// 真实任务的正常交互
 		// 点击事件
 		if (config.clickable && props.onClick) {
 			card.addEventListener('click', async () => {

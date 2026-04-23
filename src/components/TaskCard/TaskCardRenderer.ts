@@ -5,6 +5,8 @@ import { TaskCardClasses, TimeBadgeClasses } from '../../utils/bem';
 import { registerTaskContextMenu } from '../../contextMenu/contextMenuIndex';
 import { openFileInExistingLeaf } from '../../utils/fileOpener';
 import { updateTaskCompletion } from '../../tasks/taskUpdater';
+import { completeRecurringTask } from '../../tasks/recurringTaskCompleter';
+import { isVirtualTask, getVirtualMetadata } from '../../tasks/virtualTaskGenerator';
 import { getStatusColor, DEFAULT_TASK_STATUSES, getCurrentThemeMode } from '../../tasks/taskStatus';
 import { RegularExpressions } from '../../utils/RegularExpressions';
 import { formatDate } from '../../dateUtils/dateUtilsIndex';
@@ -94,16 +96,46 @@ export class TaskCardRenderer {
 		checkbox.disabled = false;
 		checkbox.addClass(TaskCardClasses.elements.checkbox);
 
+		// 虚拟任务的 checkbox：点击跳转到源任务
+		if (isVirtualTask(task)) {
+			checkbox.addEventListener('click', async (e) => {
+				e.stopPropagation();
+				e.preventDefault();
+				// 导航到源任务文件
+				const meta = getVirtualMetadata(task);
+				if (meta) {
+					const [filePath, lineStr] = meta.sourceTaskId.split(':');
+					const lineNumber = parseInt(lineStr);
+					await openFileInExistingLeaf(this.app, filePath, lineNumber);
+				}
+				checkbox.checked = false; // 还原 checkbox
+			});
+			return checkbox;
+		}
+
+		// 周期性真实任务的 checkbox：完成时创建下一个周期任务
 		checkbox.addEventListener('change', async (e) => {
 			e.stopPropagation();
 			const isNowCompleted = checkbox.checked;
 			try {
-				await updateTaskCompletion(
-					this.app,
-					task,
-					isNowCompleted,
-					this.plugin.settings.enabledTaskFormats
-				);
+				if (isNowCompleted && task.repeat) {
+					// 周期任务完成流程
+					const dateField = this.plugin.settings.dateFilterField || 'dueDate';
+					await completeRecurringTask(
+						this.app,
+						task,
+						this.plugin.settings.enabledTaskFormats,
+						dateField
+					);
+				} else {
+					// 普通完成流程
+					await updateTaskCompletion(
+						this.app,
+						task,
+						isNowCompleted,
+						this.plugin.settings.enabledTaskFormats
+					);
+				}
 				taskItem.toggleClass(TaskCardClasses.modifiers.completed, isNowCompleted);
 				taskItem.toggleClass(TaskCardClasses.modifiers.pending, !isNowCompleted);
 			} catch (error) {
@@ -152,6 +184,16 @@ export class TaskCardRenderer {
 
 		const ticktickEl = card.createDiv(TaskCardClasses.elements.ticktick);
 		ticktickEl.setText(task.ticktick);
+	}
+
+	/**
+	 * 渲染周期指示器（🔁 小图标）
+	 */
+	renderRepeatIndicator(card: HTMLElement): void {
+		const indicator = card.createEl('span', {
+			cls: TaskCardClasses.elements.repeatIndicator,
+		});
+		indicator.setText('🔁');
 	}
 
 	/**

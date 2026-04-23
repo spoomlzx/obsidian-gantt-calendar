@@ -7,6 +7,7 @@ import { TaskCardClasses, DayViewClasses, withModifiers } from '../utils/bem';
 import { TaskCardComponent, DayViewConfig } from '../components/TaskCard';
 import { Logger } from '../utils/logger';
 import { findDailyNoteForDate } from '../utils/dailyNoteSettingsBridge';
+import { generateVirtualInstances } from '../tasks/virtualTaskGenerator';
 
 /**
  * 日视图渲染器
@@ -210,6 +211,12 @@ export class DayViewRenderer extends BaseViewRenderer {
 			});
 
 			// 应用排序
+			// 生成虚拟周期实例（单日范围）
+			const virtualInstances = generateVirtualInstances(tasks, normalizedTarget, normalizedTarget, dateField);
+
+			// 合并真实任务和虚拟实例
+			currentDayTasks = [...currentDayTasks, ...virtualInstances];
+
 			currentDayTasks = sortTasks(currentDayTasks, this.sortState);
 
 			listContainer.empty();

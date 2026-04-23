@@ -92,6 +92,7 @@ export const TaskCardClasses = {
 		file: bem(BLOCKS.TASK_CARD, 'file'),
 		warning: bem(BLOCKS.TASK_CARD, 'warning'),
 		ticktick: bem(BLOCKS.TASK_CARD, 'ticktick'),
+		repeatIndicator: bem(BLOCKS.TASK_CARD, 'repeat-indicator'),
 	},
 
 	/** Modifiers */
@@ -105,6 +106,9 @@ export const TaskCardClasses = {
 		// 状态修饰符
 		completed: bem(BLOCKS.TASK_CARD, undefined, 'completed'),
 		pending: bem(BLOCKS.TASK_CARD, undefined, 'pending'),
+		// 周期任务修饰符
+		recurring: bem(BLOCKS.TASK_CARD, undefined, 'recurring'),
+		virtual: bem(BLOCKS.TASK_CARD, undefined, 'virtual'),
 	}
 };
 
