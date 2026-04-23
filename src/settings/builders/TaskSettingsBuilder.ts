@@ -137,6 +137,22 @@ export class TaskSettingsBuilder extends BaseBuilder {
 						}));
 			});
 
+			// ========== 周期任务设置 ==========
+			addSetting(group, setting =>
+				setting.setName('周期任务实例显示数量')
+					.setDesc('在周视图/月视图中，每个周期任务最多显示的未来虚拟实例数量。设置为 0 则不显示虚拟实例。')
+					.addText(text => text
+						.setPlaceholder('5')
+						.setValue(String(this.plugin.settings.recurringTaskDisplayLimit ?? 5))
+						.onChange(async (value) => {
+							const num = parseInt(value);
+							if (!isNaN(num) && num >= 0) {
+								this.plugin.settings.recurringTaskDisplayLimit = num;
+								await this.plugin.saveSettings();
+							}
+						}))
+			);
+
 			// ========== 任务默认状态设置（子组） ==========
 			addSetting(group, setting => {
 				setting.nameEl.remove();

@@ -170,7 +170,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 			this.applyStatusFilter(this.plugin.taskCache.getAllTasks())
 		);
 		const allVirtualInstances = generateVirtualInstances(
-			allRealTasks, monthStart, monthEnd, dateField
+			allRealTasks, monthStart, monthEnd, dateField, this.plugin.settings.recurringTaskDisplayLimit ?? 5
 		);
 
 		// 展平渲染：6行周数据，每行包含1个周编号 + 7个日期格子
@@ -315,7 +315,7 @@ export class MonthViewRenderer extends BaseViewRenderer {
 				// 增量刷新时重新计算虚拟实例（单日范围）
 				const dayStart = new Date(normalizedTarget);
 				const dayEnd = new Date(normalizedTarget);
-				virtualForDay = generateVirtualInstances(tasks, dayStart, dayEnd, dateField);
+				virtualForDay = generateVirtualInstances(tasks, dayStart, dayEnd, dateField, this.plugin.settings.recurringTaskDisplayLimit ?? 5);
 			}
 
 			// 合并真实任务和虚拟实例

@@ -51,7 +51,8 @@ export function generateVirtualInstances(
     tasks: GCTask[],
     rangeStart: Date,
     rangeEnd: Date,
-    dateField: string
+    dateField: string,
+    maxCount: number = 50
 ): GCTask[] {
     const virtualTasks: GCTask[] = [];
 
@@ -72,7 +73,7 @@ export function generateVirtualInstances(
         if (!rule) continue;
 
         // 计算范围内的出现日期
-        const occurrences = getOccurrencesInRange(rule, baseDate, rangeStart, rangeEnd);
+        const occurrences = getOccurrencesInRange(rule, baseDate, rangeStart, rangeEnd, maxCount);
 
         for (const occDate of occurrences) {
             const virtualTask = createVirtualTask(task, occDate, dateField, rule);

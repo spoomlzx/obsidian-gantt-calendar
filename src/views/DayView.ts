@@ -212,7 +212,7 @@ export class DayViewRenderer extends BaseViewRenderer {
 
 			// 应用排序
 			// 生成虚拟周期实例（单日范围）
-			const virtualInstances = generateVirtualInstances(tasks, normalizedTarget, normalizedTarget, dateField);
+			const virtualInstances = generateVirtualInstances(tasks, normalizedTarget, normalizedTarget, dateField, this.plugin.settings.recurringTaskDisplayLimit ?? 5);
 
 			// 合并真实任务和虚拟实例
 			currentDayTasks = [...currentDayTasks, ...virtualInstances];

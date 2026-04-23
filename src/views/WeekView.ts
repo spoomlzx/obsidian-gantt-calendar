@@ -120,7 +120,7 @@ export class WeekViewRenderer extends BaseViewRenderer {
 			this.applyStatusFilter(this.plugin.taskCache.getAllTasks())
 		);
 		const allVirtualInstances = generateVirtualInstances(
-			allRealTasks, weekStart, weekEnd, dateField
+			allRealTasks, weekStart, weekEnd, dateField, this.plugin.settings.recurringTaskDisplayLimit ?? 5
 		);
 
 		weekData.days.forEach((day) => {
@@ -261,7 +261,7 @@ export class WeekViewRenderer extends BaseViewRenderer {
 				// 增量刷新时重新计算虚拟实例（单日范围）
 				const dayStart = new Date(normalizedTarget);
 				const dayEnd = new Date(normalizedTarget);
-				virtualForDay = generateVirtualInstances(tasks, dayStart, dayEnd, dateField);
+				virtualForDay = generateVirtualInstances(tasks, dayStart, dayEnd, dateField, this.plugin.settings.recurringTaskDisplayLimit ?? 5);
 			}
 
 			// 合并真实任务和虚拟实例
